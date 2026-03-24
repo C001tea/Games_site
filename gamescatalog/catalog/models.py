@@ -17,6 +17,7 @@ class Games(models.Model):
     rating = models.FloatField(default=0.0, verbose_name="rating")
     image = models.URLField(max_length=500, null=True, blank=True, verbose_name="image")
 
+
     stores = models.ManyToManyField(Store, blank=True, verbose_name="stores")
 
     def __str__(self):
