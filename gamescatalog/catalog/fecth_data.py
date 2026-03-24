@@ -1,9 +1,9 @@
 import time
 
 import requests
+import os
 
-API_KEY = '9a89219f39ec477b8c7c807b479d1536'
-
+API_KEY = os.getenv('API_KEY')
 
 def time_counter(func):
     def wrapper():
