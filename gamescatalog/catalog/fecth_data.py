@@ -18,8 +18,9 @@ def time_counter(func):
 stores_list = []
 screenshots_list = []
 games_list = []
-platforms_list = []
-max_games = 100
+requirements_list = []
+ratings_list = []
+max_games = 2000
 
 @time_counter
 def fetch_data():
@@ -42,10 +43,11 @@ def fetch_data():
             print(result['ratings'])
 
             for screen in result.get('short_screenshots', []):
-                screenshots_list.append({
-                    'games_id': result['id'],
-                    'image': screen['image']
-                })
+                if screen['id'] != -1:
+                    screenshots_list.append({
+                        'game_id': result['id'],
+                        'image': screen['image']
+                    })
 
 
             for store_info in result.get('stores', []):
@@ -63,16 +65,38 @@ def fetch_data():
                 'slug': result['slug'],
                 'name': result['name'],
                 'released': result['released'],
-                'rating': result['rating'],
+                'rating': result.get('rating', 0.0),
+                'rating_count': result.get('ratings_count', 0),
                 'description': fetch_description(result['id']),
-                'requirements': None
+                'image': result['background_image']
             })
 
-            print(screenshots_list)
-            print(stores_list)
+            for platform_info in result.get('platforms', []):
+                platform = platform_info.get('platform')
 
-        games_fetched += 1
+                reqs = platform_info.get('requirements_en') or {}
 
+                requirements_list.append({
+                    'game_id': result['id'],
+                    'platform_id': platform['id'],
+                    'name': platform['name'],
+                    'slug': platform['slug'],
+                    'requirements_minimum': reqs.get('minimum', ''),
+                    'requirements_recommended': reqs.get('recommended', '')
+                })
+
+            ratings = result.get('ratings', [])
+            for rating in ratings:
+                ratings_list.append({
+                    'game_id': result['id'],
+                    'rating_id': rating['id'],
+                    'title': rating['title'],
+                    'percent': rating['percent'],
+                    'count': rating['count']
+                })
+            games_fetched += 1
+            if games_fetched > max_games:
+                break
         url = data.get('next')
 
 # fetch_data()
@@ -92,27 +116,10 @@ def test_data():
     response = requests.get(url)
     data = response.json()
     results = data['results']
-
-    for result in results:
-        for platform_info in result.get('platforms', []):
-            platform = platform_info.get('platform')
-
-            reqs = platform_info.get('requirements_en') or {}
-
-            platforms_list.append({
-                'game_id': result['id'],
-                'platform_id': platform['id'],
-                'name': platform['name'],
-                'slug': platform['slug'],
-                'requirements_minimum': reqs.get('minimum', ''),
-                'requirements_recommended': reqs.get('recommended', '')
-            })
-    print(platforms_list)
-
-test_data()
+# test_data()
 
 
 # What you need to do tomorrow:
-# 1. finish to set all fetch: fetch requirements for table games, ratings;
+# 1. finish to set all fetch:  ratings;
 # 2. renew tables in models and make migrations;
 # 3. start developing front;
