@@ -1,8 +1,9 @@
 import time
-
 import requests
 import os
+from dotenv import load_dotenv
 
+load_dotenv()
 API_KEY = os.getenv('API_KEY')
 
 def time_counter(func):
@@ -17,6 +18,7 @@ def time_counter(func):
 stores_list = []
 screenshots_list = []
 games_list = []
+platforms_list = []
 max_games = 100
 
 @time_counter
@@ -85,16 +87,29 @@ def fetch_description(game_id):
 
 
 def test_data():
-    url = f'https://api.rawg.io/api/games?key={API_KEY}&page_size=10'
-
+    # url = f'https://api.rawg.io/api/games?key={API_KEY}&page_size=10'
+    url = f'https://api.rawg.io/api/games?key={API_KEY}&page_size=1'
     response = requests.get(url)
     data = response.json()
     results = data['results']
 
     for result in results:
-        print(result['id'], result['name'])
+        for platform_info in result.get('platforms', []):
+            platform = platform_info.get('platform')
 
-# test_data()
+            reqs = platform_info.get('requirements_en') or {}
+
+            platforms_list.append({
+                'game_id': result['id'],
+                'platform_id': platform['id'],
+                'name': platform['name'],
+                'slug': platform['slug'],
+                'requirements_minimum': reqs.get('minimum', ''),
+                'requirements_recommended': reqs.get('recommended', '')
+            })
+    print(platforms_list)
+
+test_data()
 
 
 # What you need to do tomorrow:

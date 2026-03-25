@@ -39,3 +39,14 @@ class Ratings(models.Model):
 
     def __str__(self):
         return f"{self.title} {self.count} for {self.game.name}"
+
+class Requirement(models.Model):
+    game = models.ForeignKey(Games, on_delete=models.CASCADE, related_name="requirements")
+
+    platform_name = models.CharField(max_length=100, verbose_name="Platform name")
+
+    minimum = models.TextField(null=True, blank=True, verbose_name="Minimum")
+    recommended = models.TextField(null=True, blank=True, verbose_name="Recommended")
+
+    def __str__(self):
+        return f'{self.platform_name} reqs for {self.game.name}'
