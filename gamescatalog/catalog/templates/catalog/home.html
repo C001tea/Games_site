@@ -1,0 +1,13 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<p>Home</p>
+
+{% for game in games_list %}
+
+<img src="{{game.image}}" style="width:200px; height:200px">
+<p>{{game.name}}</p>
+{% endfor %}
+{% endblock %}

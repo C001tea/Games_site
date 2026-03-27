@@ -18,12 +18,22 @@ def time_counter(func):
     return wrapper
 
 class Command(BaseCommand):
+
+    def add_arguments(self, parser):
+        parser.add_argument("--page", type=int, default=1, help='Стартовая страница')
+        parser.add_argument("--limit", type=int, default=2000, help='Сколько игр скачать')
+
     @time_counter
     def handle(self, *args, **options):
-        url = f'https://api.rawg.io/api/games?key={API_KEY}&page_size=40'
+
+        start_page = options['page']
+        max_games = options['limit']
         games_fetched = 0
-        max_games = 2000
+
+        url = f'https://api.rawg.io/api/games?key={API_KEY}&page_size=40&page={start_page}'
+
         while url and games_fetched < max_games:
+            self.stdout.write(f"Собираем данные о игре под номером {games_fetched}")
             response = requests.get(url)
             data = response.json()
             results = data['results']
