@@ -18,6 +18,7 @@ class Games(models.Model):
     rating_count = models.IntegerField(default=0, verbose_name="Ratings count")
     image = models.URLField(max_length=500, null=True, blank=True, verbose_name="image")
     description = models.TextField(null=True, blank=True, verbose_name="Description")
+    steam_id = models.CharField(null=True, blank=True, unique=True)
 
     stores = models.ManyToManyField(Store, blank=True, verbose_name="stores")
 
@@ -49,3 +50,14 @@ class Requirements(models.Model):
 
     def __str__(self):
         return f'{self.platform_name} reqs for {self.game.name}'
+
+class GamePrice(models.Model):
+    game = models.ForeignKey(Games, on_delete=models.CASCADE, related_name='prices')
+    store = models.ForeignKey(Store, on_delete=models.CASCADE, related_name='game_prices')
+    price = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
+    retail_price = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
+    savings = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
+    url = models.URLField(blank=True, null=True)
+
+    class Meta:
+        unique_together = ('game', 'store')
