@@ -1,3 +1,6 @@
 from django.contrib import admin
+from .models import Games, Store, Ratings, Requirements, Screenshots
 
-# Register your models here.
+admin.site.register([Screenshots, Games, Store, Ratings, Requirements])
+
+
