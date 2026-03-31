@@ -18,7 +18,7 @@ class Games(models.Model):
     rating_count = models.IntegerField(default=0, verbose_name="Ratings count")
     image = models.URLField(max_length=500, null=True, blank=True, verbose_name="image")
     description = models.TextField(null=True, blank=True, verbose_name="Description")
-    steam_id = models.CharField(null=True, blank=True, unique=True)
+    steam_id = models.CharField(null=True, blank=True)
 
     stores = models.ManyToManyField(Store, blank=True, verbose_name="stores")
 

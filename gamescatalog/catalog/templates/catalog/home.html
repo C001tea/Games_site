@@ -5,9 +5,17 @@
 {% block content %}
 <p>Home</p>
 
+<div class="div_catalog">
+<ul class="ul_catalog">
 {% for game in games_list %}
+        <li>
+            <div class="div_product">
+                <img src="{{game.image}}" style="width:300px; height:300px" alt="image">
+                <p>{{game.name}}</p>
+            </div>
+        </li>
 
-<img src="{{game.image}}" style="width:200px; height:200px">
-<p>{{game.name}}</p>
 {% endfor %}
+</ul>
+</div>
 {% endblock %}
