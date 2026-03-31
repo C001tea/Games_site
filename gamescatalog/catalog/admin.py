@@ -4,7 +4,7 @@ from .models import Games, Store, Ratings, Requirements, Screenshots, GamePrice
 
 @admin.register(Games)
 class AdminGame(admin.ModelAdmin):
-    list_display = ['name', 'released', 'rating']
+    list_display = ['name', 'released', 'rating', 'steam_id']
     list_filter = ('stores',)
 
 @admin.register(Store)

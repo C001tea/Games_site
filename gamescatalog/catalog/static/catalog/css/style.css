@@ -1,0 +1,19 @@
+.ul_catalog{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    list-style: none;
+}
+
+.div_catalog{
+    background: gray;
+    margin-left: 15%;
+    margin-right: 15%;
+    padding: 0;
+}
+
+.div_product{
+    margin: 5px;
+    padding: 0;
+    box-shadow: 0px;
+}

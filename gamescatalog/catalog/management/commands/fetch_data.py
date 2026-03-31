@@ -99,7 +99,7 @@ def fetch_description(game_id):
     response = requests.get(f'https://api.rawg.io/api/games/{game_id}?key={API_KEY}')
     if response.status_code == 200:
         data = response.json()
-        time.sleep(1)
+        time.sleep(0.5)
 
         description = data.get('description', '')
     else: description = ''
@@ -124,14 +124,17 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         games_fetched = 0
-        max_games = 10
-        url = f'https://api.rawg.io/api/games?key={API_KEY}&page_size=10'
+        max_games = 50
+        url = f'https://api.rawg.io/api/games?key={API_KEY}&page_size=40&page=6'
         while url and games_fetched < max_games:
             response = requests.get(url)
-            data = response.json()
-            results = data['results']
-
+            if response.status_code == 200:
+                data = response.json()
+                results = data['results']
+            else:
+                continue
             for result in results:
+                print(f"Собираются данные игры под номером {games_fetched}")
                 game_id = result['id']
                 store_details = fetch_store_details(game_id)
                 steam_id = store_details['steam_id']
