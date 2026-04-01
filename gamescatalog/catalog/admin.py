@@ -1,11 +1,11 @@
 from django.contrib import admin
-from .models import Games, Store, Ratings, Requirements, Screenshots, GamePrice
+from .models import Game, Store, Rating, Requirement, Screenshot, GamePrice
 
 
-@admin.register(Games)
+@admin.register(Game)
 class AdminGame(admin.ModelAdmin):
     list_display = ['name', 'released', 'rating', 'steam_id']
-    list_filter = ('stores',)
+    list_filter = ('stores', 'genres')
 
 @admin.register(Store)
 class AdminStore(admin.ModelAdmin):
