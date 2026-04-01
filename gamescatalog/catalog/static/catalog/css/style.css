@@ -1,13 +1,21 @@
+:root{
+    --bg-color: #1a1a1a;
+    --text-color: #f0f0f0;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
 .ul_catalog{
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
     list-style: none;
 }
 
 .div_catalog{
-    background: gray;
-    margin-left: 15%;
     margin-right: 15%;
     padding: 0;
 }
@@ -15,5 +23,66 @@
 .div_product{
     margin: 5px;
     padding: 0;
-    box-shadow: 0px;
+    background-color: #333333;
+    text-align: center;
+    border-radius: 12px;
+}
+
+.link-game{
+    font-family: Open Sans, Cantarell, Ubuntu, Oxygen, Roboto, Segoe UI, BlinkMacSystemFont, -apple-system, "Arial Black", "Impact", sens-serif;
+    color: #ffffff;
+}
+
+.product_card img{
+    width: 100%;
+    height: 270px;
+    object-fit: cover;
+    display: block;
+    overflow-clip-margin: content-box;
+    overflow: clip;
+}
+
+.game-rating{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.stars{
+    --percent: calc(var(--rating) / 5 * 100%);
+    display: inline-block;
+    font-size: 28px;
+    font-family: Times, serif;
+    line-height: 1;
+}
+
+.stars::before{
+    content: '★★★★★';
+    letter-spacing: 2px;
+
+    background: linear-gradient(
+    90deg,
+    #ffc107 var(--percent),
+    #e4e5e9 var(--percent)
+    );
+
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+
+.main-layout{
+    display: flex;
+}
+
+.sidebar{
+    position: sticky;
+    height: max-content;
+    padding: 20px;
+    width: 250px;
+    top: 20px;
+}
+
+.content{
+    flex-grow: 1;
 }
