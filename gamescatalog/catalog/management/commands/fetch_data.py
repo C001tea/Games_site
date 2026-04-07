@@ -49,9 +49,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         games_fetched = 0
-        max_games = 200
+        max_games = 2000
         start_page = 80
-        url = f'https://api.rawg.io/api/games?key={API_KEY}&page_size=40&page={start_page}&ordering=-added'
+        url = f'https://api.rawg.io/api/games?key={API_KEY}&page_size=40'
+        # url = f'https://api.rawg.io/api/games?key={API_KEY}&page_size=40&page={start_page}&ordering=-added'
         while url and games_fetched < max_games:
             response = requests.get(url)
             if response.status_code == 200:
@@ -60,7 +61,7 @@ class Command(BaseCommand):
             else:
                 continue
             for result in results:
-                print(f"Собираются данные игры под номером {games_fetched}")
+                print(f"Собираются данные игры под номером {games_fetched+1}")
                 game_id = result['id']
                 store_details = fetch_store_details(game_id)
                 steam_id = store_details['steam_id']

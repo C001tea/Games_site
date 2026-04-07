@@ -1,4 +1,12 @@
 from django.db import models
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
+from django.utils.text import slugify
+import meilisearch
+
+
+client = meilisearch.Client('http://127.0.0.1:7700', 'artem')
+
 
 class Store(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -13,6 +21,19 @@ class Genre(models.Model):
     def __str__(self):
         return self.name
 
+class Platform(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(unique=True, blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
 class Game(models.Model):
     id = models.IntegerField(primary_key=True)
     slug = models.SlugField(max_length=255, unique=True)
@@ -24,8 +45,9 @@ class Game(models.Model):
     description = models.TextField(null=True, blank=True, verbose_name="Description")
     steam_id = models.CharField(null=True, blank=True)
 
-    genres = models.ManyToManyField(Genre, verbose_name="genre")
-    stores = models.ManyToManyField(Store, blank=True, verbose_name="stores")
+    genres = models.ManyToManyField(Genre, verbose_name="genre", related_name="games")
+    stores = models.ManyToManyField(Store, blank=True, verbose_name="stores", related_name="games")
+    platforms = models.ManyToManyField(Platform, blank=True, related_name="games")
 
     def __str__(self):
         return self.name
@@ -62,8 +84,23 @@ class GamePrice(models.Model):
     price = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
     retail_price = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
     savings = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
-    url = models.URLField(blank=True, null=True)
+    url = models.URLField(max_length=1000, blank=True, null=True)
 
     class Meta:
         unique_together = ('game', 'store')
 
+
+
+
+@receiver(post_save, sender=Game)
+def sync_to_meilisearch(sender, instance, **kwargs):
+    document = {
+        'id': instance.id,
+        'title': instance.name,
+        'rating': float(instance.rating) if instance.rating else 0.0
+    }
+    client.index('games').add_documents(document)
+
+@receiver(post_delete, sender=Game)
+def remove_from_meilisearch(sender, instance, **kwargs):
+    client.index('games').delete_document(instance.id)
