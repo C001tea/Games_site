@@ -1,0 +1,80 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}{{ game.name }}{% endblock %}
+
+{% block content %}
+
+<style>
+body {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(26, 26, 26, 1)), url('{{game.image}}');
+    background-size: cover;
+    background-position: center;
+    }
+</style>
+
+
+<div class="game-header">
+<h1>{{ game.name }}</h1>
+
+
+<div class="gallery-stores">
+<div class="slider-wrapper" style="position: relative; flex: 1; min-width: 0; max-width: 800px;">
+    <button class="slider-btn left-btn">❮</button>
+
+<div class="screenshots-gallery" id="game-slider">
+    {% for screenshot in game.screenshots.all %}
+        <img src="{{ screenshot.image }}">
+    {% endfor %}
+</div>
+
+    <button class="slider-btn right-btn">❯</button>
+</div>
+
+<div class="stores-price">
+    {% for price in prices %}
+<h3>
+    <a href="{{ price.url }}" target="_blank" rel="noopener noreferrer">
+    {{ price.store }}
+{% if price.price != None %}
+    ${{ price.price }}
+{% endif %}
+    </a>
+</h3>
+{% endfor %}
+</div>
+</div>
+
+<h1>Description</h1>
+<p>{{ game.description|safe }}</p>
+
+{% for rating in game.detail_ratings.all %}
+    {{ rating.title }}
+    {{ rating.count }}
+    {{ rating.percent }}
+{% endfor %}
+
+    {% for requirement in game.requirements.all %}
+        {% if requirement.recommended %}
+        <h2>Requirements for {{ requirement.platform_name }}</h2>
+        {{ requirement.minimum|safe }}
+        {{ requirement.recommended|safe }}
+        {% endif %}
+    {% endfor %}
+</div>
+
+<script>
+
+    const slider = document.getElementById('game-slider');
+    const leftBtn = document.querySelector('.left-btn');
+    const rightBtn = document.querySelector('.right-btn');
+
+    leftBtn.addEventListener('click', () => {
+        slider.scrollBy({left: -slider.clientWidth, behavior: 'smooth'});
+    });
+
+    rightBtn.addEventListener('click', () => {
+        slider.scrollBy({left: slider.clientWidth, behavior: 'smooth'});
+    });
+</script>
+{% endblock %}
+

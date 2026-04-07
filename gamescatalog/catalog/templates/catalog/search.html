@@ -1,8 +1,11 @@
 {% extends 'catalog/base.html' %}
 
-{% block title %}Home{% endblock %}
-
 {% block content %}
+
+
+{% if searched %}
+<h2>Результаты поиска по запросу: {{ searched }}</h2>
+{% endif %}
 
 <div class="div_catalog">
 <ul class="ul_catalog">
@@ -11,17 +14,17 @@
             <div class="div_product">
                 <div class="product_card">
                     <a href="{% url 'game' slug=game.slug %}" style="color: inherit; text-decoration: none;">
-                        <img src="{{ game.image }}" alt="image">
-                        <p style="margin-block-start: 2%;">{{game.name}}</p>
-                        <div class="game-rating">
+                <img src="{{ game.image }}" loading="lazy" alt="image">
+                    {{game.name}}
+                    <div class="game-rating">
                         <div class="stars" style="--rating: {{ game.rating }}"></div>
-                        </div>
+                    </div>
                     </a>
                 </div>
             </div>
         </li>
-
 {% endfor %}
 </ul>
 </div>
+
 {% endblock %}
