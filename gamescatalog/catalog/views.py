@@ -6,7 +6,7 @@ from django.db.models import Case, When
 client = meilisearch.Client('http://127.0.0.1:7700', 'artem')
 
 def home(request):
-
+    games_list = Game.objects.all()
     sort = (request.GET.get("sort", "") or "rating")
 
     sort_map = {
@@ -14,7 +14,7 @@ def home(request):
 
     }
 
-    games_list = Game.objects.all().order_by(sort_map.get(sort, "rating"))[:72]
+    games_list = games_list.order_by(sort_map.get(sort, "rating"))[:72]
 
     return render(request, 'catalog/home.html', context={'games_list': games_list})
 
@@ -39,10 +39,18 @@ def search(request):
 
 def game_detail(request, slug):
     game = Game.objects.get(slug=slug)
-    prices = game.prices.all()
+    prices = game.prices.all().order_by('price')
     return render(request, 'catalog/detail_games.html', context={'game': game, 'prices': prices})
 
 
 def platforms(request):
     platform_list = Platform.objects.all()
     return render(request, 'catalog/platforms.html', {"platform_list": platform_list})
+
+
+def all_games(request, slug):
+    platform = Platform.objects.get(slug=slug)
+    print(platform)
+    games_list = Game.objects.filter(platforms=platform)
+    print(games_list)
+    return render(request, 'catalog/all_games.html', {'games_list': games_list})

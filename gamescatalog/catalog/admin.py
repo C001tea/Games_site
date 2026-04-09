@@ -25,3 +25,7 @@ class AdminScreenshot(admin.ModelAdmin):
 @admin.register(Platform)
 class AdminPlatform(admin.ModelAdmin):
     list_display = ['name', 'slug']
+
+@admin.register(Requirement)
+class AdminRequirement(admin.ModelAdmin):
+    list_display = ["platform_name"]
