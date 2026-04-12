@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from .models import Game, Store, Platform
 import meilisearch
-from django.db.models import Case, When
+from django.db.models import Case, When, Count
 
 client = meilisearch.Client('http://127.0.0.1:7700', 'artem')
 
@@ -44,13 +44,19 @@ def game_detail(request, slug):
 
 
 def platforms(request):
-    platform_list = Platform.objects.all()
+    platform_list = Platform.objects.annotate(games_count=Count('games')).order_by('-games_count')
     return render(request, 'catalog/platforms.html', {"platform_list": platform_list})
 
 
 def all_games(request, slug):
+    sort = (request.GET.get("sort") or "rating")
+
+    sorting_map = {
+        "oldest": "released",
+        "newest": "-released"
+    }
+
     platform = Platform.objects.get(slug=slug)
-    print(platform)
     games_list = Game.objects.filter(platforms=platform)
-    print(games_list)
+    games_list = games_list.order_by(sorting_map.get(sort, "-rating"))
     return render(request, 'catalog/all_games.html', {'games_list': games_list})
