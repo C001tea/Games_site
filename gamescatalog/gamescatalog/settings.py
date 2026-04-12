@@ -81,7 +81,7 @@ DATABASES = {
         'USER': 'game_user',
         'PASSWORD': '>&@)}#{=bNnRCgeCr8E=!/7',
         'HOST': '127.0.0.1',
-        'PORT': '5432',
+        'PORT': '5433',
     }
 }
 

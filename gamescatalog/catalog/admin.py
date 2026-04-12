@@ -4,13 +4,13 @@ from .models import Game, Store, Rating, Requirement, Screenshot, GamePrice, Pla
 
 @admin.register(Game)
 class AdminGame(admin.ModelAdmin):
-    list_display = ['name', 'released', 'rating', 'steam_id']
-    list_filter = ('stores', 'genres')
-    search_fields = ['name']
+    list_display = ['name', 'released', 'rating', 'steam_id', 'alternative_names', 'developers']
+    list_filter = ('stores', 'genres', 'released')
+    search_fields = ['name', 'alternative_names']
 
 @admin.register(Store)
 class AdminStore(admin.ModelAdmin):
-    list_display = ['id', 'name']
+    list_display = ['id', 'name', 'domain']
 
 @admin.register(GamePrice)
 class AdminGamePrice(admin.ModelAdmin):

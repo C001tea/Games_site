@@ -4,6 +4,15 @@
 
 {% block content %}
 
+<div class="sorting">
+    <form method="get" id="sortForm">
+        <input type="radio" name="sort" value="oldest" id="oldest" onchange="document.getElementById('sortForm').submit()">
+            <label for="oldest">Oldest</label>
+        <input type="radio" name="sort" value="newest" id="newest" onchange="document.getElementById('sortForm').submit()">
+            <label for="newest">Newest</label>
+    </form>
+</div>
+
 <div class="div_catalog">
 <ul class="ul_catalog">
 {% for game in games_list %}

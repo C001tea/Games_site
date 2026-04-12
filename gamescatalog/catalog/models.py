@@ -3,6 +3,7 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.utils.text import slugify
 import meilisearch
+from django.contrib.staticfiles import finders
 
 
 client = meilisearch.Client('http://127.0.0.1:7700', 'artem')
@@ -13,8 +14,19 @@ class Store(models.Model):
     name = models.CharField(max_length=100, verbose_name="Name")
     domain = models.CharField(max_length=150, verbose_name="domain")
 
+    icons = {
+        "store.steampowered.com": "steam",
+        "epicgames.com": "epicgames",
+        "store.playstation.com": "playstation",
+        "apps.apple.com": "appstore",
+    }
+
     def __str__(self):
         return self.name
+
+    @property
+    def clean_slug(self):
+        return self.icons.get(self.domain)
 
 class Genre(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -24,6 +36,8 @@ class Genre(models.Model):
 class Platform(models.Model):
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(unique=True, blank=True, null=True)
+    url = models.URLField(max_length=1000, null=True, blank=True)
+
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -31,6 +45,14 @@ class Platform(models.Model):
 
         super().save(*args, **kwargs)
 
+    @property
+    def has_icon(self):
+
+        path = f"catalog/icons/{self.slug}.svg"
+
+        if finders.find(path):
+            return True
+        return False
     def __str__(self):
         return self.name
 
@@ -44,6 +66,8 @@ class Game(models.Model):
     image = models.URLField(max_length=500, null=True, blank=True, verbose_name="image")
     description = models.TextField(null=True, blank=True, verbose_name="Description")
     steam_id = models.CharField(null=True, blank=True)
+    alternative_names = models.JSONField(default=list, null=True, blank=True)
+    developers = models.CharField(max_length=200, null=True, blank=True)
 
     genres = models.ManyToManyField(Genre, verbose_name="genre", related_name="games")
     stores = models.ManyToManyField(Store, blank=True, verbose_name="stores", related_name="games")
