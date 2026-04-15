@@ -1,0 +1,13 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Genres{% endblock %}
+
+{% block content %}
+<div class="genres-list">
+{% for genre in genres_list %}
+    <div class="genre-item">
+        <a href="{% url 'all_games' %}?genre={{ genre.name }}" style="color: inherit; text-decoration: none;">{{ genre.name }}</a>
+    </div>
+{% endfor %}
+</div>
+{% endblock %}

@@ -23,14 +23,19 @@ def fetch_description(game_id):
     if response.status_code == 200:
         data = response.json()
         time.sleep(0.5)
+        print(data)
+        added = data.get('added', '')
         alternative_names = data.get('alternative_names', '')
-        developers = data.get('developers', '')[0]['name']
+        developers = data.get('developers', '')
+        if developers:
+            developers = developers[0]['name']
         description = data.get('description', '')
     else:
         description = ''
         developers = ''
         alternative_names = []
-    desc_dev = {'description': description, 'developers': developers, 'alternative_names': alternative_names}
+        added = ''
+    desc_dev = {'description': description, 'developers': developers, 'alternative_names': alternative_names, 'added': added}
     return desc_dev
 
 def fetch_store_details(game_id):
@@ -41,7 +46,6 @@ def fetch_store_details(game_id):
         data = []
     details = {'steam_id': None, 'urls': {}}
     for stores in data:
-        print(stores)
         store_id = stores.get('store_id')
         url = stores.get('url', '')
         details['urls'][store_id] = url
@@ -66,10 +70,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         games_fetched = 0
-        max_games = 2
-        start_page = 80
-        url = f'https://api.rawg.io/api/games?key={API_KEY}&page_size=1'
-        # url = f'https://api.rawg.io/api/games?key={API_KEY}&page_size=40&page={start_page}&ordering=-added'
+        max_games = 300
+        start_page = 1
+        # url = f'https://api.rawg.io/api/games?key={API_KEY}&page_size=40'
+        url = f'https://api.rawg.io/api/games?key={API_KEY}&page_size=40&page={start_page}&ordering=-added'
         while url and games_fetched < max_games:
             response = requests.get(url)
             if response.status_code == 200:
@@ -94,7 +98,8 @@ class Command(BaseCommand):
                     'image': result['background_image'],
                     'steam_id': steam_id,
                     'developers': fetch_info['developers'],
-                    'alternative_names': fetch_info['alternative_names']
+                    'alternative_names': fetch_info['alternative_names'],
+                    'added': int(fetch_info['added'])
                 })
                 cheapshark_deals = {}
 
@@ -133,12 +138,10 @@ class Command(BaseCommand):
                     game_obj.stores.add(store_obj)
 
                     store_url = store_details['urls'].get(store['id'])
-                    print("\n\n\n\nstore", store)
 
                     cheap_shark_names = rawg_stores_to_cheap_shark.get(store['name'], store['name'])
 
                     deal = cheapshark_deals.get(cheap_shark_names)
-                    print("deal", deal)
                     if deal:
                         GamePrice.objects.update_or_create(game=game_obj, store=store_obj, defaults={
                               'price': deal.get('price'),

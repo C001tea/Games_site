@@ -19,6 +19,12 @@ class Store(models.Model):
         "epicgames.com": "epicgames",
         "store.playstation.com": "playstation",
         "apps.apple.com": "appstore",
+        "nintendo.com": "nintendo",
+        "itch.io": "itch",
+        "play.google.com": "googleplay",
+        "marketplace.xbox.com": "xbox360",
+        "gog.com": "gog",
+        "microsoft.com": "xbox",
     }
 
     def __str__(self):
@@ -38,7 +44,6 @@ class Platform(models.Model):
     slug = models.SlugField(unique=True, blank=True, null=True)
     url = models.URLField(max_length=1000, null=True, blank=True)
 
-
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
@@ -48,11 +53,12 @@ class Platform(models.Model):
     @property
     def has_icon(self):
 
-        path = f"catalog/icons/{self.slug}.svg"
+        path = f"catalog/icons/platforms/{self.slug}.svg"
 
         if finders.find(path):
             return True
         return False
+
     def __str__(self):
         return self.name
 
@@ -68,6 +74,7 @@ class Game(models.Model):
     steam_id = models.CharField(null=True, blank=True)
     alternative_names = models.JSONField(default=list, null=True, blank=True)
     developers = models.CharField(max_length=200, null=True, blank=True)
+    added = models.IntegerField(null=True, blank=True)
 
     genres = models.ManyToManyField(Genre, verbose_name="genre", related_name="games")
     stores = models.ManyToManyField(Store, blank=True, verbose_name="stores", related_name="games")
@@ -114,16 +121,15 @@ class GamePrice(models.Model):
         unique_together = ('game', 'store')
 
 
-
-
 @receiver(post_save, sender=Game)
 def sync_to_meilisearch(sender, instance, **kwargs):
     document = {
         'id': instance.id,
         'title': instance.name,
-        'rating': float(instance.rating) if instance.rating else 0.0
+        'rating': float(instance.rating) if instance.rating else 0.0,
+        'alternative_names': instance.alternative_names
     }
-    client.index('games').add_documents(document)
+    client.index('games').add_documents([document])
 
 @receiver(post_delete, sender=Game)
 def remove_from_meilisearch(sender, instance, **kwargs):
