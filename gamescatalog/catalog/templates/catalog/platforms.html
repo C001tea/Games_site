@@ -6,7 +6,7 @@
 <div class="platforms">
 {% for platform in platform_list %}
     <div class="platform">
-    <a href="{% url 'all_games' platform.slug %}" style="color: inherit; text-decoration: none; cursor: pointer;">{{ platform.name }}</a>
+    <a href="{% url 'all_games' %}?platform={{ platform.slug }}" style="color: inherit; text-decoration: none; cursor: pointer;">{{ platform.name }}</a>
     </div>
     {% endfor %}
 </div>

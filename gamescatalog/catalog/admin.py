@@ -4,7 +4,7 @@ from .models import Game, Store, Rating, Requirement, Screenshot, GamePrice, Pla
 
 @admin.register(Game)
 class AdminGame(admin.ModelAdmin):
-    list_display = ['name', 'released', 'rating', 'steam_id', 'alternative_names', 'developers']
+    list_display = ['name', 'released', 'rating', 'steam_id', 'alternative_names', 'developers', 'added']
     list_filter = ('stores', 'genres', 'released')
     search_fields = ['name', 'alternative_names']
 
@@ -28,4 +28,5 @@ class AdminPlatform(admin.ModelAdmin):
 
 @admin.register(Requirement)
 class AdminRequirement(admin.ModelAdmin):
-    list_display = ["platform_name"]
+    search_fields = ["game__name"]
+    list_display = ["game", "platform_name", ]

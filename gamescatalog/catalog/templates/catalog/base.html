@@ -21,16 +21,23 @@
 
 <div class="main-layout">
     <aside class="sidebar">
-    <h3>Browse</h3>
-    <p>Genres</p>
-    <a href="{% url 'platforms' %}" style="color: inherit; text-decoration: none;"><p>Platforms</p></a>
-    </form>
-</aside>
-<main class="content">
-{% block content %}
-{% endblock %}
-</main>
+        <h3 style="margin-top: 0"><a href="{% url 'home' %}" style="color: inherit; text-decoration: none;">Home</a></h3>
+        <h3 style="margin-top: 0;">Browse</h3>
+        <a href="/games/" style="color: inherit; text-decoration: none;"><p>All Games</p></a>
+        <a href="{% url 'genres' %}" style="color: inherit; text-decoration: none;"><p>Genres</p></a>
+        <a href="{% url 'platforms' %}" style="color: inherit; text-decoration: none;"><p>Platforms</p></a>
+    </aside>
 
+    <main class="content">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <aside class="sidebar-ads">
+        <div class="unit-ad">
+            <p>Рекламный блок</p>
+        </div>
+    </aside>
 </div>
 
 </body>

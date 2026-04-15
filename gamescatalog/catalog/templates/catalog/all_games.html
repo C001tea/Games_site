@@ -1,26 +1,66 @@
 {% extends 'catalog/base.html' %}
-
+{% load static %}
+{% load mytags %}
 {% block title %}All Games{% endblock %}
 
 {% block content %}
 
-<div class="sorting">
-    <form method="get" id="sortForm">
-        <input type="radio" name="sort" value="oldest" id="oldest" onchange="document.getElementById('sortForm').submit()">
-            <label for="oldest">Oldest</label>
-        <input type="radio" name="sort" value="newest" id="newest" onchange="document.getElementById('sortForm').submit()">
-            <label for="newest">Newest</label>
-    </form>
+
+<div class="all-games">
+<nav class="breadcrumbs-nav">
+    <ul class="breadcrumbs-list">
+        <li class="breadcrumbs-item"><a href="/">Home</a></li>
+        <li class="breadcrumbs-item"><a href="/games/">Games</a></li>
+    </ul>
+</nav>
+
+<div class="filters">
+    <div class="sorting">
+
+        <select name="sort" class="select-filters" onchange="window.location.href=this.value">
+            <option value="" selected disabled hidden>Sorting By</option>
+
+            <option value="?{% param_replace sort='rating' %}"{% if request.GET.sort == 'rating' %} selected {% endif %}>Rating</option>
+            <option value="?{% param_replace sort='oldest' %}" {% if request.GET.sort == 'oldest' %} selected {% endif %}>Oldest</option>
+            <option value="?{% param_replace sort='newest' %}" {% if request.GET.sort == 'newest' %} selected {% endif %}>Newest</option>
+        </select>
+    </div>
+
+    <div class="platforms-filter">
+        <select name="platform" class="select-filters" onchange="window.location.href=this.value">
+            <option value="" selected disabled hidden>Platform </option>
+            <option value="?{% param_replace platform='' %}">All</option>
+            {% for platform in platform_list %}
+            <option value="?{% param_replace platform=platform.slug %}"{% if request.GET.platform == platform.slug %}selected{% endif %}>{{ platform.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="genres-filter">
+        <select name="genre" class="select-filters" onchange="window.location.href=this.value">
+            <option value="" selected disabled hidden>Genres</option>
+            <option value="?{% param_replace genre='' %}">All</option>
+            {% for genre in genres_list %}
+            <option value="?{% param_replace genre=genre.name %}"{% if request.GET.genre == genre.name %}selected{% endif %}>{{ genre.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
 </div>
 
+
 <div class="div_catalog">
-<ul class="ul_catalog">
+<ul class="ul-catalog">
 {% for game in games_list %}
         <li>
             <div class="div_product">
                 <div class="product_card">
                     <a href="{% url 'game' slug=game.slug %}" style="color: inherit; text-decoration: none;">
-                        <img src="{{ game.image }}" alt="image">
+                        {% if game.image %}
+                            <img src="{{ game.image }}" alt="image" loading="lazy">
+                        {% else %}
+                            <img src="{% static 'catalog/images/chernii.jpg' %}" loading="lazy">
+                        {% endif %}
                         <p style="margin-block-start: 2%;">{{game.name}}</p>
                         <div class="game-rating">
                         <div class="stars" style="--rating: {{ game.rating }}"></div>
@@ -33,4 +73,20 @@
 {% endfor %}
 </ul>
 </div>
+    </div>
+<div class="paginator">
+
+    {% if games_list.has_previous %}
+        <a href="?{% param_replace page=games_list.previous_page_number %}" class="page-link">&laquo; Prev</a>
+    {% endif %}
+
+    <span class="current-page">
+        Page {{ games_list.number }} of {{ games_list.paginator.num_pages }}
+    </span>
+
+    {% if games_list.has_next %}
+        <a href="?{% param_replace page=games_list.next_page_number %}" class="page-link">Next &raquo; </a>
+    {% endif %}
+</div>
 {% endblock %}
+
