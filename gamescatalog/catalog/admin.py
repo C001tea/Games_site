@@ -1,11 +1,11 @@
 from django.contrib import admin
-from .models import Game, Store, Rating, Requirement, Screenshot, GamePrice, Platform
+from .models import Game, Store, Rating, Requirement, Screenshot, GamePrice, Platform, Tag
 
 
 @admin.register(Game)
 class AdminGame(admin.ModelAdmin):
-    list_display = ['name', 'released', 'rating', 'steam_id', 'alternative_names', 'developers', 'added']
-    list_filter = ('stores', 'genres', 'released')
+    list_display = ['name', 'released', 'rating', 'steam_id', 'alternative_names', 'developers', 'added', 'parent_platforms']
+    list_filter = ('stores', 'genres', 'released', 'tags')
     search_fields = ['name', 'alternative_names']
 
 @admin.register(Store)
@@ -30,3 +30,8 @@ class AdminPlatform(admin.ModelAdmin):
 class AdminRequirement(admin.ModelAdmin):
     search_fields = ["game__name"]
     list_display = ["game", "platform_name", ]
+
+@admin.register(Tag)
+class AdminTag(admin.ModelAdmin):
+    list_display = ["id", "name", "slug"]
+    search_fields = ["name"]

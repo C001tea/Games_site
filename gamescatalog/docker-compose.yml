@@ -12,6 +12,16 @@ services:
       - "5433:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
+  meilisearch:
+    image: getmeili/meilisearch:latest
+    container_name: meilisearch
+    environment:
+      MEILI_MASTER_KEY: 'artem'
+    ports:
+      - "7700:7700"
+    volumes:
+      - meilisearch_data:/meili_data
 
 volumes:
   pg_data:
+  meilisearch_data:

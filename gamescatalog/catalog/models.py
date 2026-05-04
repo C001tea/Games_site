@@ -3,8 +3,9 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.utils.text import slugify
 import meilisearch
+from django.db.models import Min
 from django.contrib.staticfiles import finders
-
+from datetime import date
 
 client = meilisearch.Client('http://127.0.0.1:7700', 'artem')
 
@@ -62,6 +63,14 @@ class Platform(models.Model):
     def __str__(self):
         return self.name
 
+class Tag(models.Model):
+    id = models.IntegerField(primary_key=True)
+    name = models.CharField(max_length=300, null=True, blank=True)
+    slug = models.CharField(max_length=300, null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
 class Game(models.Model):
     id = models.IntegerField(primary_key=True)
     slug = models.SlugField(max_length=255, unique=True)
@@ -75,13 +84,38 @@ class Game(models.Model):
     alternative_names = models.JSONField(default=list, null=True, blank=True)
     developers = models.CharField(max_length=200, null=True, blank=True)
     added = models.IntegerField(null=True, blank=True)
+    parent_platforms = models.JSONField(default=list, null=True, blank=True)
 
     genres = models.ManyToManyField(Genre, verbose_name="genre", related_name="games")
     stores = models.ManyToManyField(Store, blank=True, verbose_name="stores", related_name="games")
     platforms = models.ManyToManyField(Platform, blank=True, related_name="games")
+    tags = models.ManyToManyField(Tag, blank=True, related_name="games")
 
     def __str__(self):
         return self.name
+
+    @property
+    def is_free_to_play(self):
+        return self.tags.filter(slug="free-to-play").exists()
+
+    @property
+    def min_price_info(self):
+        result = self.prices.aggregate(Min('price'))
+        return result['price__min']
+
+    @property
+    def is_upcoming(self):
+        return self.released > date.today()
+
+    @property
+    def has_icon(self):
+        result = []
+        for platform in self.parent_platforms or []:
+            path = f"catalog/icons/platforms/{platform.lower()}.svg"
+            if finders.find(path):
+                result.append(platform)
+        return result
+
 
 class Screenshot(models.Model):
     game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name='screenshots')
@@ -126,6 +160,7 @@ def sync_to_meilisearch(sender, instance, **kwargs):
     document = {
         'id': instance.id,
         'title': instance.name,
+        'added': instance.added,
         'rating': float(instance.rating) if instance.rating else 0.0,
         'alternative_names': instance.alternative_names
     }
