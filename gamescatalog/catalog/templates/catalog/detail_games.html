@@ -16,18 +16,18 @@ body {
 <div class="game-header">
 
     <nav class="breadcrumbs-nav">
-        <a href="javascript:history.back()" class="back-to-results">
+        <a href="javascript:history.back()" class="back-to-results" style="margin-left: 10px;">
         &larr; Back
     </a>
     <ul class="breadcrumbs-list">
         <li class="breadcrumbs-item"><a href="/">Home</a></li>
         <li class="breadcrumbs-item"><a href="/games/">Games</a></li>
-        <li class="breadcrumbs-item">{{ game.name }}</li>
+        <li class="breadcrumbs-item"><span>{{ game.name }}</span></li>
     </ul>
 
 </nav>
 
-<h1 style="margin-top: 10px;">{{ game.name }}</h1>
+<h1 style="margin-top: 10px;" class="game-name">{{ game.name }}</h1>
 
 <div class="gallery-stores">
     <div class="store-img">
@@ -37,7 +37,7 @@ body {
 <div class="screenshots-gallery" id="game-slider">
     {% if game.screenshots.all %}
         {% for screenshot in game.screenshots.all %}
-            <img src="{{ screenshot.image }}" loading="lazy">
+            <img src="{{ screenshot.image }}" loading="lazy" onclick="openModal(this)">
         {% endfor %}
     {% else %}
         <img src="{% static 'catalog/images/chernii.jpg' %}" loading="lazy">
@@ -50,7 +50,9 @@ body {
 
 <div class="info-container">
 
+    <div class="info-prg">
     <div class="info-platforms">
+        {% if game.platforms.all %}
         <span style="color: rgb(140, 140, 140);">Platforms: </span>
         {% for platform in game.platforms.all %}
             <span class="info-platforms-name">{{ platform.name }}
@@ -60,22 +62,40 @@ body {
             {% if not forloop.last %},{% endif %}
             </span>
         {% endfor %}
+        {% endif %}
     </div>
 
-    <div class="info-released">
-        <span style="color: rgb(140, 140, 140);">Released: </span>
-        <span>{{ game.released }}</span>
-    </div>
+    {% if game.released %}
+        {% if game.is_upcoming %}
+            <div class="info-released">
+            <span style="color: rgb(140, 140, 140);">Release date: </span>
+            <span>{{ game.released }}</span>
+            </div>
+        {% else %}
+            <div class="info-released">
+            <span style="color: rgb(140, 140, 140);">Released: </span>
+            <span>{{ game.released }}</span>
+            </div>
+        {% endif %}
 
+    {% endif %}
+
+
+        {% if game.genres.all %}
     <div class="info-genres">
         <span style="color: rgb(140, 140, 140);">Genres: </span>
         {% for genre in game.genres.all %}
             <span class="genre">{{ genre.name }}{% if not forloop.last %},{% endif %}</span>
         {% endfor %}
     </div>
+        {% endif %}
+    </div>
 
+
+    {% if game.detail_ratings.all %}
 
     <div class="rating-container">
+        <p><span>{{ game.rating_count }} Ratings</span></p>
     {% for rating in game.detail_ratings.all %}
     <div class="rating-row">
         <div class="rating-info">
@@ -87,38 +107,61 @@ body {
         </div>
     {% endfor %}
     </div>
+    {% endif %}
 
 </div>
 </div>
 
     <div class="detail-info">
+        {% if game_prices %}
+        <div class="where-to-buy">
+            <h1 style="margin-top: 0;">Where to buy</h1>
+            <div class="stores">
 
-        <div class="stores">
-
-            {% for game_price in game_prices %}
-                <div class="store-card">
-                    <span class="img-title" loading="lazy">
-                    <img src="{% static 'catalog/icons/stores/' %}{{ game_price.store.clean_slug }}.svg" loading="lazy">
-                    <a href="{{ game_price.url }}" target="_blank" rel="noopener noreferrer">
-                        <p>{{ game_price.store }}</p></a></span>
-                        <span class="store-price">
-                        {% if game_price.price %}
-                                {% if game_price.retail_price != game_price.price %}
-                                    <s style="color: gray;">${{ game_price.retail_price }}</s>
-                                {% endif %}
-                            ${{ game_price.price }}
+                {% for game_price in game_prices %}
+                <a href="{{ game_price.url }}" target="_blank" rel="noopener noreferrer" class="store-card">
+                    <div class="store-info">
+                        <img src="{% static 'catalog/icons/stores/' %}{{ game_price.store.clean_slug }}.svg" loading="lazy" class="store-icon">
+                        <span class="store-name">{{ game_price.store.name }}</span>
+                    </div>
+                    <div class="price-info">
+                        {% if game_price.savings and game_price.savings > 0 %}
+                        <span class="discount-badge">-{{ game_price.savings|floatformat:0 }}%</span>
+                        <div class="price-column">
+                            <span class="retail-price">${{ game_price.retail_price }}</span>
+                            <span class="current-price">${{ game_price.price }}</span>
+                        </div>
+                        {% else %}
+                            {% if game_price.price %}
+                                <span class="current-price">${{ game_price.price }}</span>
+                                <div class="action-btn">Buy</div>
                             {% else %}
-                                <span class="view-store">View</span>
+                                <span class="action-btn">View in store</span>
                             {% endif %}
-                        </span>
-                </div>
-            {% endfor %}
-        </div>
+                        {% endif %}
 
-        <div class="description">
+
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="description" style="margin-top: 10px;">
         <h1 style="margin-top: 0;">Description</h1>
         <hr>
         {{ game.description|safe }}
+            {% if tags_list %}
+            <div class="info-tags">
+                <span style="color: rgb(140, 140, 140); font-family: 'Montserrat', sans-serif; font-weight: 700;">Tags: </span>
+
+            {% for tag in tags_list %}
+                <span class="tag-item" style="font-family: 'Montserrat', sans-serif; font-weight: 700;">{{ tag.name }}{% if not forloop.last %},{% endif %}</span>
+            {% endfor %}
+
+            </div>
+            {% endif %}
         </div>
 
 
@@ -139,6 +182,72 @@ body {
 </div>
 
 </div>
+{% if similar_games %}
+<div class="recommended">
+    <h1>You may also like</h1>
+        <div class="carousel-wrapper" style="position: relative; border-radius: 8px;">
+        <button class="carousel-btn carousel-left-btn" onclick="scrollCarousel('track-{{ forloop.counter }}', -1)">&#10094;</button>
+        <div class="carousel-track" id="track-{{ forloop.counter }}">
+        {% for game in similar_games %}
+
+            <div class="product-card">
+                <a href="{% url 'game' slug=game.slug %}" style="color: inherit; text-decoration: none;" class="c-link">
+            <div class="c-image-wrapper">
+            {% if game.image %}
+                <img src="{{ game.image }}" alt="image" loading="lazy" class="c-image">
+            {% else %}
+                <img src="{% static 'catalog/images/chernii.jpg' %}" loading="lazy" class="c-image">
+            {% endif %}
+                {% if game.rating != 0.0 %}
+                <div class="c-rating">
+                    ★ {{ game.rating|floatformat:1 }}
+                </div>
+                {% endif %}
+            </div>
+
+
+        <div class="c-content">
+            <h3 class="c-title">{{ game.name }}</h3>
+
+            <div class="c-meta">
+                <span class="c-developer">{{ game.developers|default:"" }}</span>
+                <span class="c-year">{{ game.released|date:"Y" }}</span>
+            </div>
+
+            <div class="c-genres">
+                {% for genre in game.genres.all|slice:":3" %}
+                    <span class="c-badge">{{ genre.name }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="c-footer">
+                {% if game.parent_platforms %}
+                <div class="c-platforms">
+                    {% for platform in game.parent_platforms %}
+                        <img src="{% static 'catalog/icons/platforms/' %}{{ platform|lower }}.svg" width="20px" height="20px" loading="lazy">
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if game.added %}
+                <div class="c-review">
+                    <span style="transform: translateY(-3px);">👥</span> {{ game.added }}
+                </div>
+                {% endif %}
+                </div>
+            </div>
+            </a>
+                </div>
+        {% endfor %}
+        </div>
+        <button class="carousel-btn carousel-right-btn" onclick="scrollCarousel('track-{{ forloop.counter }}', 1)">&#10095;</button>
+        </div>
+</div>
+{% endif %}
+
+<div class="modal-overlay" id="modal" onclick="closeModal()">
+    <img class="modal-img" id="modal-img">
+</div>
+
 <script>
 
     const slider = document.getElementById('game-slider');
@@ -151,6 +260,37 @@ body {
 
     rightBtn.addEventListener('click', () => {
         slider.scrollBy({left: slider.clientWidth, behavior: 'smooth'});
+    });
+
+    function scrollCarousel(trackId, direction){
+        const track = document.getElementById(trackId);
+        const card = track.querySelector('.product-card');
+        if(card){
+            const widthcard = card.offsetWidth + 20;
+            track.scrollBy({
+                left: widthcard * 2 * direction,
+                behavior: 'smooth'
+            });
+        }
+    }
+
+    function openFullscreen(img){
+        if(img.requestFullscreen){
+            img.requestFullscreen();
+        }
+    }
+
+    function openModal(img){
+        document.getElementById('modal-img').src = img.src;
+        document.getElementById('modal').classList.add('active');
+    }
+
+    function closeModal(){
+        document.getElementById('modal').classList.remove('active');
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key == 'Escape') closeModal();
     });
 </script>
 {% endblock %}

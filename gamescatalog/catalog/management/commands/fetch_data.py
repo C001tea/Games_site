@@ -1,13 +1,13 @@
-import time
+import time, datetime
 import requests
 import os
 from dotenv import load_dotenv
 from django.core.management.base import BaseCommand
-from catalog.models import Game, Rating, Requirement, Store, Screenshot, GamePrice, Genre
+from catalog.models import Game, Rating, Requirement, Store, Screenshot, GamePrice, Genre, Tag, Platform
 import re
 
 load_dotenv()
-API_KEY = os.getenv('API_KEY')
+API_KEY = os.getenv('API_KEY2')
 
 rawg_stores_to_cheap_shark = {
     'Epic Games': 'Epic Games Store',
@@ -22,20 +22,47 @@ def fetch_description(game_id):
     response = requests.get(f'https://api.rawg.io/api/games/{game_id}?key={API_KEY}')
     if response.status_code == 200:
         data = response.json()
-        time.sleep(0.5)
-        print(data)
+        time.sleep(0.3)
+
+        tags_data = dict()
+        tags = data.get('tags', [])
+        if tags:
+            for tag in tags:
+                name = tag.get('name', '')
+                slug = tag.get('slug', '')
+                tag_id = tag.get('id', '')
+                tags_data[tag_id] = (name, slug)
+
         added = data.get('added', '')
         alternative_names = data.get('alternative_names', '')
         developers = data.get('developers', '')
+        parent_platforms = data.get('parent_platforms', [])
+        parent_platform = []
+        if parent_platforms:
+            for platform in parent_platforms:
+                get_platform = platform.get("platform", '')
+                if get_platform:
+                    name = get_platform.get("name", '')
+                    parent_platform.append(name)
         if developers:
             developers = developers[0]['name']
+        else:
+            developers = ''
         description = data.get('description', '')
     else:
         description = ''
         developers = ''
         alternative_names = []
-        added = ''
-    desc_dev = {'description': description, 'developers': developers, 'alternative_names': alternative_names, 'added': added}
+        added = 0
+        tags_data = dict()
+        parent_platform = []
+
+    desc_dev = {'description': description,
+                'developers': developers,
+                'alternative_names': alternative_names,
+                'added': added,
+                'tags_data': tags_data,
+                'parent_platforms': parent_platform}
     return desc_dev
 
 def fetch_store_details(game_id):
@@ -57,7 +84,7 @@ def fetch_store_details(game_id):
 
 
 def test():
-    steam_id = 1687950
+    steam_id = 3357650
     cs_response = requests.get(
         f'https://www.cheapshark.com/api/1.0/games?steamAppID={steam_id}')
     print(cs_response.json())
@@ -70,10 +97,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         games_fetched = 0
-        max_games = 300
-        start_page = 1
-        # url = f'https://api.rawg.io/api/games?key={API_KEY}&page_size=40'
-        url = f'https://api.rawg.io/api/games?key={API_KEY}&page_size=40&page={start_page}&ordering=-added'
+        max_games = 500
+        start_page = 190
+        url = f'https://api.rawg.io/api/games?key={API_KEY}&page_size=40&page={start_page}'
+        #url = f'https://api.rawg.io/api/games?key={API_KEY}&dates=2026-01-01,2026-05-01&page_size=40&page={start_page}&ordering=-released'
         while url and games_fetched < max_games:
             response = requests.get(url)
             if response.status_code == 200:
@@ -82,12 +109,23 @@ class Command(BaseCommand):
             else:
                 continue
             for result in results:
-                print(f"Собираются данные игры под номером {games_fetched+1}")
+                print(f"Собираются данные игры под номером {games_fetched+1}.", result['name'])
+
+                tags = result.get('tags', [])
+                has_adult_tags = False
+                forbidden_tags = ['hentai', 'nsfw', 'adult', 'sex', 'erotic', 'porn', 'femboy', 'nudity', 'sexual-content']
+                if tags:
+                    has_adult_tags = any(tag.get('slug') in forbidden_tags for tag in tags)
+                if has_adult_tags:
+                    self.stdout.write(self.style.WARNING(f'Пропускаю {result['name']}!'))
+                    continue
+
                 game_id = result['id']
                 store_details = fetch_store_details(game_id)
                 steam_id = store_details['steam_id']
                 genres = [genre.get('name') for genre in result.get('genres', [])]
                 fetch_info = fetch_description(result['id'])
+                parent_platforms = fetch_info['parent_platforms'] or ''
                 game_obj, created = Game.objects.update_or_create(id=game_id, defaults={
                     'slug': result['slug'],
                     'name': result['name'],
@@ -99,9 +137,20 @@ class Command(BaseCommand):
                     'steam_id': steam_id,
                     'developers': fetch_info['developers'],
                     'alternative_names': fetch_info['alternative_names'],
-                    'added': int(fetch_info['added'])
+                    'added': int(fetch_info['added']),
+                    'parent_platforms': parent_platforms
                 })
                 cheapshark_deals = {}
+
+                game_obj.platforms.clear()
+                for platform_info in (result.get('platforms', []) or []):
+                    p_data = platform_info.get('platform')
+                    if p_data:
+                        platform_obj, _ = Platform.objects.get_or_create(
+                            name=p_data['name'],
+                            defaults={'slug': p_data.get('slug')}
+                        )
+                        game_obj.platforms.add(platform_obj)
 
                 if steam_id:
                     cs_response = requests.get(
@@ -118,7 +167,6 @@ class Command(BaseCommand):
                                         cheapshark_deals[store_name] = deal
                                         break
                     time.sleep(0.5)
-
                 game_obj.genres.clear()
                 for g_name in genres:
                     genre_obj, _ = Genre.objects.get_or_create(name=g_name)
@@ -126,14 +174,25 @@ class Command(BaseCommand):
                     game_obj.genres.add(genre_obj)
 
 
+                game_obj.tags.clear()
+                for k, v in fetch_info['tags_data'].items():
+                    tag_obj, _ = Tag.objects.get_or_create(
+                        id=k,
+                        defaults={
+                            'name': v[0],
+                            'slug': v[1]
+                        }
+                    )
+                    game_obj.tags.add(tag_obj)
+
                 game_obj.stores.clear()
-                for store_info in result.get('stores', []):
+                for store_info in (result.get('stores', []) or []):
                     store = store_info['store']
                     store_obj, _ = Store.objects.get_or_create(
                         id=store['id'],
                         defaults={
                             'name': store['name'],
-                            'domain': store['domain']
+                            'domain': store.get('domain', '')
                         })
                     game_obj.stores.add(store_obj)
 
@@ -157,15 +216,13 @@ class Command(BaseCommand):
                               'url': store_url
                           })
 
-
-
                 game_obj.screenshots.all().delete()
-                for screen in result.get('short_screenshots', []):
+                for screen in (result.get('short_screenshots', []) or []):
                     if screen['id'] != -1:
                         Screenshot.objects.create(game=game_obj, image=screen['image'])
 
                 game_obj.requirements.all().delete()
-                for platform_info in result.get('platforms', []):
+                for platform_info in (result.get('platforms', []) or []):
                     platform = platform_info.get('platform')
 
                     reqs = platform_info.get('requirements_en') or {}
@@ -182,7 +239,20 @@ class Command(BaseCommand):
                                            percent=rating['percent'])
 
                 games_fetched += 1
-                if games_fetched > max_games:
+                if games_fetched >= max_games:
                     break
             url = data.get('next')
-        self.stdout.write(self.style.SUCCESS("Successfully completed!"))
+        self.stdout.write(self.style.SUCCESS(url))
+        self.stdout.write(self.style.SUCCESS(f"Successfully completed! {datetime.datetime.now()}"))
+
+# Собираются данные игры под номером 492. A.V.A. Alliance of Valiant Arms
+# Собираются данные игры под номером 493. MIND: Path to Thalamus Enhanced Edition
+# Собираются данные игры под номером 494. The Count Lucanor
+# Собираются данные игры под номером 495. AdVenture Communist
+# Собираются данные игры под номером 496. Portal: Still Alive
+# Собираются данные игры под номером 497. Cooking Simulator
+# Собираются данные игры под номером 498. Bone: The Great Cow Race
+# Собираются данные игры под номером 499. Party Hard 2
+# Собираются данные игры под номером 500. Bleed
+# https://api.rawg.io/api/games?key=9a89219f39ec477b8c7c807b479d1536&ordering=-added&page=102&page_size=40
+# Successfully completed!

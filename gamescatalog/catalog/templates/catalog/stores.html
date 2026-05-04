@@ -1,0 +1,15 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Stores{% endblock %}
+
+{% block content %}
+
+<div class="stores-list">
+    {% for store in stores_list %}
+        <div class="store-item">
+            <a href="{% url 'all_games' %}?store={{store.name}}" style="color: inherit; text-decoration: none;">{{ store.name }}</a>
+        </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

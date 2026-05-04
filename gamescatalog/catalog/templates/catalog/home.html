@@ -1,35 +1,90 @@
 {% extends 'catalog/base.html' %}
 {% load static %}
+{% load mytags %}
 {% block title %}Home{% endblock %}
 
 {% block content %}
 
-<div class="new-items">
-
-    {% for offer, list in offers_list.items %}
-        <h1>{{ offer }}</h1>
-        <div class="carousel-wrapper" style="position: relative; border-radius: 8px;">
-        <button class="carousel-btn carousel-left-btn" onclick="scrollCarousel('track-{{ forloop.counter }}', -1)">&#10094;</button>
-        <div class="carousel-track" id="track-{{ forloop.counter }}">
-        {% for item in list %}
-            <div class="product-card">
-                <a href="{% url 'game' slug=item.slug %}" style="color: inherit; text-decoration: none;">
-                    {% if item.image %}
-                        <img src="{{ item.image }}" alt="image" loading="lazy">
-                    {% else %}
-                        <img src="{% static 'catalog/images/chernii.jpg' %}" loading="lazy">
-                    {% endif %}
-                    <p style="margin-block-start: 2%;">{{item.name}}</p>
-                    <div class="game-rating">
-                        <div class="stars" style="--rating: {{ item.rating }}"></div>
-                    </div>
-                </a>
+<div class="offers">
+    {% for name, list_item in offers_list.items %}
+    {% for offer, list in list_item.items %}
+        {% if forloop.parentloop.first and forloop.first %}
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <h1><a href="games/?{% param_replace sort=name %}" class="offer-name">{{ offer }}</a></h1>
+                <a href="/games/" class="all-games-name"><h3 style="margin-bottom: 0;">View all →</h3></a>
             </div>
-        {% endfor %}
+        {% else %}
+            <h1><a href="games/?{% param_replace sort=name %}" class="offer-name">{{ offer }}</a></h1>
+        {% endif %}
+
+        <div class="carousel-wrapper" style="position: relative; border-radius: 8px;">
+        <button class="carousel-btn carousel-left-btn" onclick="scrollCarousel('track-{{ forloop.parentloop.counter }}-{{ forloop.counter }}', -1)">&#10094;</button>
+        <div class="carousel-track" id="track-{{ forloop.parentloop.counter }}-{{ forloop.counter }}">
+        {% for game in list %}
+
+            <div class="product-card">
+                <a href="{% url 'game' slug=game.slug %}" style="color: inherit; text-decoration: none;" class="c-link">
+            <div class="c-image-wrapper">
+            {% if game.image %}
+                <img src="{{ game.image }}" alt="image" loading="lazy" class="c-image">
+            {% else %}
+                <img src="{% static 'catalog/images/chernii.jpg' %}" loading="lazy" class="c-image">
+            {% endif %}
+                {% if game.rating != 0.0 %}
+                <div class="c-rating">
+                    ★ {{ game.rating|floatformat:1 }}
+                </div>
+                {% endif %}
+            </div>
+
+
+        <div class="c-content">
+            <h3 class="c-title">{{ game.name }}</h3>
+
+            <div class="c-meta">
+                <span>
+                    {% if game.developers %}
+                        <span class="c-developer">{{ game.developers|default:"" }}</span>
+                    {% endif %}
+                <span class="c-price">
+                        {% if game.is_free_to_play %}
+                            Free to play
+                        {% elif game.min_price_info %}
+                            <span style="font-weight: bold;">${{ game.min_price_info }}</span>
+                        {% endif %}
+                    </span>
+                </span>
+                <span class="c-year">{{ game.released|date:"Y" }}</span>
+            </div>
+
+            <div class="c-genres">
+                {% for genre in game.genres.all|slice:":3" %}
+                    <span class="c-badge">{{ genre.name }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="c-footer">
+                <div class="c-platforms">
+                    {% for platform in game.has_icon %}
+                        <img src="{% static 'catalog/icons/platforms/' %}{{ platform|lower }}.svg" width="20x" height="20px" loading="lazy">
+                    {% endfor %}
+                </div>
+                {% if game.added %}
+                <div class="c-review">
+                    <span style="transform: translateY(-3px);">👥</span> {{ game.added }}
+                </div>
+                {% endif %}
+                </div>
+            </div>
+            </a>
+                </div>
+            {% endfor %}
         </div>
-        <button class="carousel-btn carousel-right-btn" onclick="scrollCarousel('track-{{ forloop.counter }}', 1)">&#10095;</button>
+        <button class="carousel-btn carousel-right-btn" onclick="scrollCarousel('track-{{ forloop.parentloop.counter }}-{{ forloop.counter }}', 1)">&#10095;</button>
         </div>
     {% endfor %}
+    {% endfor %}
+
 </div>
 
 <script>
