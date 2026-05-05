@@ -61,7 +61,7 @@
         </div>
         <div class="stores-children" id="PlatformsChildren" >
             {% for platform in all_platforms %}
-                <a href="/games/?{% param_replace platform=platform %}" >{{ platform.name }}</a>
+                <a href="/games/?{% param_replace platform=platform.slug %}" >{{ platform.name }}</a>
             {% endfor %}
         </div>
         </div>
