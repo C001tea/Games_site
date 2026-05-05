@@ -1100,6 +1100,7 @@ button.expand-btn{
 
     .content{
         width: 100%;
+        margin: 0 10px;
     }
 
     .site-logo{
@@ -1217,11 +1218,6 @@ button.expand-btn{
         font-size: 13px;
     }
 
-
-    .content{
-        margin: 0 10px;
-    }
-
     .gallery-stores{
         flex-direction: column;
     }
@@ -1244,4 +1240,129 @@ button.expand-btn{
         overflow-clip-margin: content-box;
         overflow: clip;
     }
+
+}
+
+@media (min-width: 769px) and (max-width: 1024px){
+
+    .content{
+        margin: 20px;
+    }
+
+    .site-logo{
+        width: 75px;
+    }
+
+    .burger-btn{
+        display: block;
+        background: rgba(51, 51, 51, 0.4);
+        border: 1px solid rgba(225, 255, 255, 0.3);
+        border-radius: 8px;
+        color: white;
+        padding: 10px;
+        margin-right: 20px;
+    }
+
+     .sidebar{
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 230px;
+        height: 100vh;
+        background: #111111;
+        z-index: 1000;
+        padding: 20px;
+        overflow-y: auto;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    .sidebar-close-btn{
+        display: block;
+        background: none;
+        border: none;
+        color: white;
+        font-size: 30px;
+        cursor: pointer;
+        margin-bottom: 20px;
+    }
+
+    .sidebar-overlay{
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 999;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .sidebar-overlay.open{
+        display: block;
+        opacity: 1;
+    }
+
+    .div_catalog{
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .search-form{
+        margin: 0;
+    }
+
+    .search-form input[type="text"]{
+        width: 100%;
+    }
+
+    .sidebar-ads{
+        display: none;
+    }
+
+    .all-games{
+        margin-right: 40px;
+    }
+
+    .slider-btn,
+    .carousel-btn{
+        display: none;
+    }
+
+    .product-card{
+        flex: 0 0 45%;
+        max-width: 45%;
+        scroll-snap-align: center;
+    }
+
+    .carousel-track{
+        scroll-snap-type: x mandatory;
+    }
+
+    .store-card{
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .screenshots-gallery img{
+        flex: 0 0 50%;
+        height: 350px;
+        object-fit: cover;
+        display: block;
+        overflow-clip-margin: content-box;
+        overflow: clip;
+    }
+
+    .gallery-stores{
+        flex-direction: column;
+    }
+
+    .stores{
+        grid-template-columns: 1fr;
+    }
+
 }

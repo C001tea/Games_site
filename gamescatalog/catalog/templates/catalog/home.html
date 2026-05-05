@@ -1,7 +1,7 @@
 {% extends 'catalog/base.html' %}
 {% load static %}
 {% load mytags %}
-{% block title %}Home{% endblock %}
+{% block title %}GameVault{% endblock %}
 
 {% block content %}
 
@@ -10,8 +10,8 @@
     {% for offer, list in list_item.items %}
         {% if forloop.parentloop.first and forloop.first %}
             <div style="display: flex; align-items: center; justify-content: space-between;">
-                <h1><a href="games/?{% param_replace sort=name %}" class="offer-name">{{ offer }}</a></h1>
-                <a href="/games/" class="all-games-name"><h3 style="margin-bottom: 0;">View all →</h3></a>
+                <h1 class="h-offers"><a href="games/?{% param_replace sort=name %}" class="offer-name">{{ offer }}</a></h1>
+                <a href="/games/" class="all-games-name"><h3 style="margin: 0;">View all →</h3></a>
             </div>
         {% else %}
             <h1><a href="games/?{% param_replace sort=name %}" class="offer-name">{{ offer }}</a></h1>

@@ -98,7 +98,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         games_fetched = 0
         max_games = 500
-        start_page = 190
+        start_page = 211
         url = f'https://api.rawg.io/api/games?key={API_KEY}&page_size=40&page={start_page}'
         #url = f'https://api.rawg.io/api/games?key={API_KEY}&dates=2026-01-01,2026-05-01&page_size=40&page={start_page}&ordering=-released'
         while url and games_fetched < max_games:
@@ -254,5 +254,5 @@ class Command(BaseCommand):
 # Собираются данные игры под номером 498. Bone: The Great Cow Race
 # Собираются данные игры под номером 499. Party Hard 2
 # Собираются данные игры под номером 500. Bleed
-# https://api.rawg.io/api/games?key=9a89219f39ec477b8c7c807b479d1536&ordering=-added&page=102&page_size=40
+# https://api.rawg.io/api/games?key=9a89219f39ec477b8c7c807b479d1536&ordering=-added&page=198&page_size=40
 # Successfully completed!
