@@ -11,10 +11,14 @@ client = meilisearch.Client('http://127.0.0.1:7700', 'artem')
 def home(request):
     games_list = Game.objects.all()
 
-    new_releases = random.sample(list(games_list.order_by(F("released").desc(nulls_last=True))[:30]), 10)
-    popular = random.sample(list(games_list.order_by(F("added").desc(nulls_last=True))[:30]), 10)
+    games_released = list(games_list.order_by(F("released").desc(nulls_last=True))[:30])
+    games_popular = list(games_list.order_by(F("added").desc(nulls_last=True))[:30])
+    games_cheap = list(Game.objects.annotate(min_price=Min('prices__price')).order_by(F('min_price').asc(nulls_last=True))[:30])
+    new_releases = random.sample(games_released, min(10, len(games_released)))
 
-    cheap_offers = random.sample(list(Game.objects.annotate(min_price=Min('prices__price')).order_by(F('min_price').asc(nulls_last=True))[:30]), 10)
+    popular = random.sample(games_popular, min(10, len(games_popular)))
+
+    cheap_offers = random.sample(games_cheap, min(10, len(games_cheap)))
 
     offers_list = {"newest": {"New Releases": new_releases}, "popular":{"Popular": popular}, "price-low-to-high": {"Cheapest Offers": cheap_offers}}
 
