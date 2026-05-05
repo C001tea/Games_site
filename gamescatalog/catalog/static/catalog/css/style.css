@@ -110,6 +110,11 @@ h1, h2, h3, p {
     flex-shrink: 0;
     top: 0;
     overflow-y: auto;
+    scrollbar-width: none;
+}
+
+.sidebar::-webkit-scrollbar{
+    display: none;
 }
 
 .content{
