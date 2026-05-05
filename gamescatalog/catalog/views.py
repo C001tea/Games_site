@@ -101,7 +101,7 @@ def all_games(request):
 
     games_list = games_list.order_by(sorting_map.get(sort, F("rating").desc(nulls_last=True)))
 
-    paginator = Paginator(games_list, 21)
+    paginator = Paginator(games_list, 24)
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
     page_range = get_page_range(page_obj.number, page_obj.paginator.num_pages)
