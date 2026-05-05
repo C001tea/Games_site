@@ -14,7 +14,8 @@
 
 <body>
 <div class="logo-search">
-    <a href="{% url 'home' %}"><img src="{% static 'catalog/images/sprattus_can.png' %}" class="site-logo" ></a>
+<!--    <a href="{% url 'home' %}"><img src="{% static 'catalog/images/sprattus_can.png' %}" class="site-logo" ></a>-->
+    <a href="{% url 'home' %}" style="color: white; text-decoration: none; margin: 10px;"><h2>GameVault</h2></a>
     <form action="/search/" method="GET" class="search-form">
         <input type="text" name="q" placeholder="Search" style="border: none;">
     </form>
