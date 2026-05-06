@@ -16,6 +16,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9440501435755251"
      crossorigin="anonymous"></script>
+
+    <meta name="description" content="{% block meta_description %}GameVault - find games, compare prices across stores{% endblock %}">
+
     <link rel="stylesheet" href="{% static 'catalog/css/style.css' %}">
     <link rel="icon" type="image/png" href="{% static 'catalog/images/sprattus_can.png' %}">
     <title>{% block title %}My site{% endblock %}</title>
@@ -23,7 +26,7 @@
 
 <body>
 <div class="logo-search">
-<!--    <a href="{% url 'home' %}"><img src="{% static 'catalog/images/sprattus_can.png' %}" class="site-logo" ></a>-->
+<!--    <a href="{% url 'home' %}"><img src="{% static 'catalog/images/sprattus_can.png' %}" class="site-logo" alt='logo'></a>-->
     <a href="{% url 'home' %}" style="color: white; text-decoration: none; margin: 10px;"><h2>GameVault</h2></a>
     <form action="/search/" method="GET" class="search-form">
         <input type="text" name="q" placeholder="Search" style="border: none;">

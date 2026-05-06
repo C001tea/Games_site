@@ -3,6 +3,8 @@
 {% load mytags %}
 {% block title %}All Games{% endblock %}
 
+{% block meta_description %}Browse all games - filter by genre and platform. Compare prices.{% endblock %}
+
 {% block content %}
 
 
@@ -73,7 +75,7 @@
         {% if game.image %}
             <img src="{{ game.image }}" alt="image" loading="lazy" class="c-image">
         {% else %}
-            <img src="{% static 'catalog/images/chernii.jpg' %}" loading="lazy" class="c-image">
+            <img src="{% static 'catalog/images/chernii.jpg' %}" loading="lazy" class="c-image" alt="unknown-image">
         {% endif %}
             <div class="c-rating">
             ★ {{ game.rating|floatformat:1 }}
@@ -109,7 +111,7 @@
             <div class="c-footer">
                 <div class="c-platforms">
                     {% for platform in game.has_icon %}
-                        <img src="{% static 'catalog/icons/platforms/' %}{{ platform|lower }}.svg" width="20x" height="20px" loading="lazy">
+                        <img src="{% static 'catalog/icons/platforms/' %}{{ platform|lower }}.svg" width="20x" height="20px" loading="lazy" alt="{{ platform|lower }}">
                     {% endfor %}
                 </div>
                 {% if game.added %}
