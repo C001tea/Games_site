@@ -2,6 +2,13 @@
 {% load static %}
 {% block title %}{{ game.name }}{% endblock %}
 
+{% block meta_description %}{{ game.name }} - Buy on {% for game_price in game_prices %}
+        {{ game_price.store.name }}
+        {% if not forloop.last %},{% endif %}
+        {% endfor %}
+        and more. Rating: {{ game.rating }}
+        {% endblock %}
+
 {% block content %}
 
 <style>
@@ -37,10 +44,10 @@ body {
 <div class="screenshots-gallery" id="game-slider">
     {% if game.screenshots.all %}
         {% for screenshot in game.screenshots.all %}
-            <img src="{{ screenshot.image }}" loading="lazy" onclick="openModal(this)">
+            <img src="{{ screenshot.image }}" loading="lazy" onclick="openModal(this)" alt="screenshots-gallery">
         {% endfor %}
     {% else %}
-        <img src="{% static 'catalog/images/chernii.jpg' %}" loading="lazy">
+        <img src="{% static 'catalog/images/chernii.jpg' %}" loading="lazy" alt="unknown-image">
     {% endif %}
 </div>
 
@@ -57,7 +64,7 @@ body {
         {% for platform in game.platforms.all %}
             <span class="info-platforms-name">{{ platform.name }}
                 {% if platform.has_icon %}
-                    <img src="{% static 'catalog/icons/platforms/' %}{{ platform.slug }}.svg" width="20x" height="20px" loading="lazy">
+                    <img src="{% static 'catalog/icons/platforms/' %}{{ platform.slug }}.svg" width="20x" height="20px" loading="lazy" alt="{{ platform|lower }}">
                 {% endif %}
             {% if not forloop.last %},{% endif %}
             </span>
@@ -121,7 +128,7 @@ body {
                 {% for game_price in game_prices %}
                 <a href="{{ game_price.url }}" target="_blank" rel="noopener noreferrer" class="store-card">
                     <div class="store-info">
-                        <img src="{% static 'catalog/icons/stores/' %}{{ game_price.store.clean_slug }}.svg" loading="lazy" class="store-icon">
+                        <img src="{% static 'catalog/icons/stores/' %}{{ game_price.store.clean_slug }}.svg" loading="lazy" class="store-icon" alt="{{ game_price.store.name }}">
                         <span class="store-name">{{ game_price.store.name }}</span>
                     </div>
                     <div class="price-info">
@@ -196,7 +203,7 @@ body {
             {% if game.image %}
                 <img src="{{ game.image }}" alt="image" loading="lazy" class="c-image">
             {% else %}
-                <img src="{% static 'catalog/images/chernii.jpg' %}" loading="lazy" class="c-image">
+                <img src="{% static 'catalog/images/chernii.jpg' %}" loading="lazy" class="c-image" alt="unknown-image">
             {% endif %}
                 {% if game.rating != 0.0 %}
                 <div class="c-rating">
@@ -224,7 +231,7 @@ body {
                 {% if game.parent_platforms %}
                 <div class="c-platforms">
                     {% for platform in game.parent_platforms %}
-                        <img src="{% static 'catalog/icons/platforms/' %}{{ platform|lower }}.svg" width="20px" height="20px" loading="lazy">
+                        <img src="{% static 'catalog/icons/platforms/' %}{{ platform|lower }}.svg" width="20px" height="20px" loading="lazy" alt="{{ platform }}">
                     {% endfor %}
                 </div>
                 {% endif %}
@@ -245,7 +252,7 @@ body {
 {% endif %}
 
 <div class="modal-overlay" id="modal" onclick="closeModal()">
-    <img class="modal-img" id="modal-img">
+    <img class="modal-img" id="modal-img" alt="modal-img">
 </div>
 
 <script>

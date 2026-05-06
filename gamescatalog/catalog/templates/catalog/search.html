@@ -17,7 +17,7 @@
         {% if game.image %}
             <img src="{{ game.image }}" alt="image" loading="lazy" class="c-image">
         {% else %}
-            <img src="{% static 'catalog/images/chernii.jpg' %}" loading="lazy" class="c-image">
+            <img src="{% static 'catalog/images/chernii.jpg' %}" loading="lazy" class="c-image" alt="unknown-image">
         {% endif %}
             {% if game.rating != 0.0 %}
                 <div class="c-rating">
@@ -55,7 +55,7 @@
             <div class="c-footer">
                 <div class="c-platforms">
                     {% for platform in game.has_icon %}
-                        <img src="{% static 'catalog/icons/platforms/' %}{{ platform|lower }}.svg" width="20x" height="20px" loading="lazy">
+                        <img src="{% static 'catalog/icons/platforms/' %}{{ platform|lower }}.svg" width="20x" height="20px" loading="lazy" alt="{{ platform }}">
                     {% endfor %}
                 </div>
                 {% if game.added %}
