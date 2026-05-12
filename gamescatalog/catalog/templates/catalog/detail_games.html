@@ -128,7 +128,9 @@ body {
                 {% for game_price in game_prices %}
                 <a href="{{ game_price.url }}" target="_blank" rel="noopener noreferrer" class="store-card">
                     <div class="store-info">
-                        <img src="{% static 'catalog/icons/stores/' %}{{ game_price.store.clean_slug }}.svg" loading="lazy" class="store-icon" alt="{{ game_price.store.name }}">
+                        {% if game_price.store.clean_slug %}
+                            <img src="{% static 'catalog/icons/stores/' %}{{ game_price.store.clean_slug }}.svg" loading="lazy" class="store-icon" alt="{{ game_price.store.name }}">
+                        {% endif %}
                         <span class="store-name">{{ game_price.store.name }}</span>
                     </div>
                     <div class="price-info">
