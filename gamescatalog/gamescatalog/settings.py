@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 import os
+
+from django.conf.global_settings import EMAIL_BACKEND, EMAIL_USE_TLS, EMAIL_HOST_PASSWORD
 from dotenv import load_dotenv
 
 
@@ -125,3 +127,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'artemgrecu6@gmail.com'
+EMAIL_HOST_PASSWORD = os.getenv('mail')
