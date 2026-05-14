@@ -44,7 +44,7 @@ body {
 <div class="screenshots-gallery" id="game-slider">
     {% if game.screenshots.all %}
         {% for screenshot in game.screenshots.all %}
-            <img src="{{ screenshot.image }}" loading="lazy" onclick="openModal(this)" alt="screenshots-gallery">
+            <img src="https://images.weserv.nl/?url={{ screenshot.image }}&output=webp&q=80" loading="lazy" onclick="openModal(this)" alt="screenshots-gallery">
         {% endfor %}
     {% else %}
         <img src="{% static 'catalog/images/chernii.jpg' %}" loading="lazy" alt="unknown-image">
@@ -203,7 +203,7 @@ body {
                 <a href="{% url 'game' slug=game.slug %}" style="color: inherit; text-decoration: none;" class="c-link">
             <div class="c-image-wrapper">
             {% if game.image %}
-                <img src="{{ game.image }}" alt="image" loading="lazy" class="c-image">
+                <img src="https://images.weserv.nl/?url={{ game.image }}&output=webp&w=500&q=80" alt="image" loading="lazy" class="c-image">
             {% else %}
                 <img src="{% static 'catalog/images/chernii.jpg' %}" loading="lazy" class="c-image" alt="unknown-image">
             {% endif %}

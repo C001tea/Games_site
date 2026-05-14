@@ -3,6 +3,10 @@
     --text-color: #f0f0f0;
 }
 
+@font-face{
+    font-display: swap;
+}
+
 body {
     background-color: var(--bg-color);
     color: var(--text-color);
