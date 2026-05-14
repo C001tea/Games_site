@@ -15,7 +15,7 @@
     <a href="{% url 'game' slug=game.slug %}" style="color: inherit; text-decoration: none;" class="c-link">
         <div class="c-image-wrapper">
         {% if game.image %}
-            <img src="{{ game.image }}" alt="image" loading="lazy" class="c-image">
+            <img src="https://images.weserv.nl/?url={{ game.image }}&output=webp&w=500&q=80" alt="image" loading="lazy" class="c-image">
         {% else %}
             <img src="{% static 'catalog/images/chernii.jpg' %}" loading="lazy" class="c-image" alt="unknown-image">
         {% endif %}

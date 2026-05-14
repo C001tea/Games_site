@@ -56,7 +56,7 @@ def game_detail(request, slug):
     ).order_by('-matching_tags')[:30])
 
     if len(similar_games_pool) >= 5:
-        similar_games = random.sample(similar_games_pool, 10)
+        similar_games = random.sample(similar_games_pool, min(len(similar_games_pool), 10))
     else:
         similar_games = similar_games_pool
     game_prices = game.prices.all().order_by('price')
