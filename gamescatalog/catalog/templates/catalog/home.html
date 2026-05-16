@@ -13,7 +13,7 @@
         {% if forloop.parentloop.first and forloop.first %}
             <div style="display: flex; align-items: center; justify-content: space-between;">
                 <h1 class="h-offers"><a href="games/?{% param_replace sort=name %}" class="offer-name">{{ offer }}</a></h1>
-                <a href="/games/" class="all-games-name"><h3 style="margin: 0;">View all →</h3></a>
+                <a href="/games/" class="all-games-name"><h3 style="margin: 0; margin-left: 5px;">View all →</h3></a>
             </div>
         {% else %}
             <h1><a href="games/?{% param_replace sort=name %}" class="offer-name">{{ offer }}</a></h1>
