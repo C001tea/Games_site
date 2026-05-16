@@ -1112,6 +1112,10 @@ button.expand-btn{
         margin: 0 10px;
     }
 
+    .offer-name{
+        font-size: 26px;
+    }
+
     .site-logo{
         width: 50px;
     }

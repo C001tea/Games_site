@@ -12,14 +12,14 @@ def home(request):
     games_list = Game.objects.all()
 
 
-    most_discount = list(games_list.annotate(discount=Max('prices__savings')).order_by(F('discount').desc(nulls_last=True))[:60])
+    games_discount = list(games_list.annotate(discount=Max('prices__savings')).order_by(F('discount').desc(nulls_last=True))[:60])
     games_released = list(games_list.order_by(F("released").desc(nulls_last=True))[:60])
     games_popular = list(games_list.order_by(F("added").desc(nulls_last=True))[:60])
     games_cheap = list(Game.objects.annotate(min_price=Min('prices__price')).order_by(F('min_price').asc(nulls_last=True))[:60])
+
+    most_discount = random.sample(games_discount, min(10, len(games_discount)))
     new_releases = random.sample(games_released, min(10, len(games_released)))
-
     popular = random.sample(games_popular, min(10, len(games_popular)))
-
     cheap_offers = random.sample(games_cheap, min(10, len(games_cheap)))
 
     offers_list = {"discount": {"Biggest Discount Today": most_discount},
