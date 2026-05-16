@@ -3,7 +3,7 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.utils.text import slugify
 import meilisearch
-from django.db.models import Min
+from django.db.models import Min, Max
 from django.contrib.staticfiles import finders
 from datetime import date
 
@@ -102,6 +102,11 @@ class Game(models.Model):
     def min_price_info(self):
         result = self.prices.aggregate(Min('price'))
         return result['price__min']
+
+    @property
+    def max_price_info(self):
+        result = self.prices.aggregate(Max('retail_price'))
+        return result['retail_price__max']
 
     @property
     def is_upcoming(self):
