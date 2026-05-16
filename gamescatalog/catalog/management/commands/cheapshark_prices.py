@@ -51,6 +51,10 @@ class Command(BaseCommand):
                                     if store.get("storeID") == store_id:
                                         sh_store = store
                                         break
+
+                                if not sh_store:
+                                    continue
+
                                 deal_url = f'https://www.cheapshark.com/redirect?dealID={deal["dealID"]}'
 
                                 store_obj, _ = Store.objects.get_or_create(

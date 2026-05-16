@@ -3,7 +3,7 @@ from .models import Game, Store, Platform, GamePrice, Genre
 import meilisearch
 from django.db.models import Case, When, Count
 from django.core.paginator import Paginator
-from django.db.models import F, Min
+from django.db.models import F, Min, Max
 import random
 
 client = meilisearch.Client('http://127.0.0.1:7700', 'artem')
@@ -11,16 +11,22 @@ client = meilisearch.Client('http://127.0.0.1:7700', 'artem')
 def home(request):
     games_list = Game.objects.all()
 
-    games_released = list(games_list.order_by(F("released").desc(nulls_last=True))[:30])
-    games_popular = list(games_list.order_by(F("added").desc(nulls_last=True))[:30])
-    games_cheap = list(Game.objects.annotate(min_price=Min('prices__price')).order_by(F('min_price').asc(nulls_last=True))[:30])
+
+    most_discount = list(games_list.annotate(discount=Max('prices__savings')).order_by(F('discount').desc(nulls_last=True))[:60])
+    games_released = list(games_list.order_by(F("released").desc(nulls_last=True))[:60])
+    games_popular = list(games_list.order_by(F("added").desc(nulls_last=True))[:60])
+    games_cheap = list(Game.objects.annotate(min_price=Min('prices__price')).order_by(F('min_price').asc(nulls_last=True))[:60])
     new_releases = random.sample(games_released, min(10, len(games_released)))
 
     popular = random.sample(games_popular, min(10, len(games_popular)))
 
     cheap_offers = random.sample(games_cheap, min(10, len(games_cheap)))
 
-    offers_list = {"newest": {"New Releases": new_releases}, "popular":{"Popular": popular}, "price-low-to-high": {"Cheapest Offers": cheap_offers}}
+    offers_list = {"discount": {"Biggest Discount Today": most_discount},
+                   "newest": {"New Releases": new_releases},
+                   "popular": {"Popular": popular},
+                   "price-low-to-high": {"Cheapest Offers": cheap_offers},
+                   }
 
     return render(request, 'catalog/home.html', context={'games_list': games_list, "offers_list": offers_list})
 

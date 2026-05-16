@@ -39,6 +39,9 @@
                         {% if game.is_free_to_play %}
                             Free to play
                         {% elif game.min_price_info %}
+                            {% if game.max_price_info and game.max_price_info != game.min_price_info %}
+                                <s style="font-size: 12px;">${{ game.max_price_info }}</s>
+                            {% endif %}
                             <span style="font-weight: bold;">${{ game.min_price_info }}</span>
                         {% endif %}
                     </span>
