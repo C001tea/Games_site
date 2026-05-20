@@ -40,7 +40,7 @@
 
 <script>
 function setCookieConsent(level) {
-  document.cookie = "cookie_consent=" + level + "; max-age=" + (365*24*60*60) + "; path=/; SameSite=Lax";
+  document.cookie = "cookie_consent=" + level + "; max-age=" + (365*24*60*60) + "; path=/; SameSite=Lax; Secure";
   document.getElementById('cookie-banner').style.display = 'none';
 }
 </script>
