@@ -23,6 +23,9 @@
     <link rel="preload" href="{% static 'catalog/css/style.css' %}" as="style">
     <link rel="stylesheet" href="{% static 'catalog/css/style.css' %}">
     <link rel="icon" type="image/png" href="{% static 'catalog/images/logo.svg' %}">
+
+    {% block canonical %}{% endblock %}
+
     <title>{% block title %}My site{% endblock %}</title>
 </head>
 
