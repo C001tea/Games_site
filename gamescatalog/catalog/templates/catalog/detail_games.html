@@ -2,6 +2,10 @@
 {% load static %}
 {% block title %}{{ game.name }}{% endblock %}
 
+{% block canonical %}
+<link rel="canonical" href="https://game-vault.dev{{ game.get_absolute_url }}">
+{% endblock %}
+
 {% block meta_description %}{{ game.name }} - Buy on {% for game_price in game_prices %}
         {{ game_price.store.name }}
         {% if not forloop.last %},{% endif %}

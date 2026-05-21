@@ -12,8 +12,9 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 import os
+from datetime import timedelta
 
-from django.conf.global_settings import EMAIL_BACKEND, EMAIL_USE_TLS, EMAIL_HOST_PASSWORD
+from django.conf.global_settings import SESSION_COOKIE_HTTPONLY
 from dotenv import load_dotenv
 
 
@@ -33,6 +34,7 @@ ALLOWED_HOSTS = ['0.0.0.0', '192.168.1.4', '127.0.0.1', '*']
 # Application definition
 
 INSTALLED_APPS = [
+    'axes',
     'accounts',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -55,6 +57,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'axes.middleware.AxesMiddleware',
 ]
 
 ROOT_URLCONF = 'gamescatalog.urls'
@@ -111,6 +114,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = [
+    'axes.backends.AxesStandaloneBackend',
+    'django.contrib.auth.backends.ModelBackend'
+]
+
+AXES_FAILURE_LIMIT = 7
+AXES_COOLOFF_TIME = timedelta(minutes=10)
+AXES_LOCKOUT_CALLABLE = None
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
@@ -122,6 +133,13 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
+
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.Argon2PasswordHasher',
+    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+]
+
 
 
 # Static files (CSS, JavaScript, Images)
@@ -138,3 +156,13 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'artemgrecu6@gmail.com'
 EMAIL_HOST_PASSWORD = os.getenv('mail')
+
+
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SAMESITE = 'Strict'
+SESSION_COOKIE_AGE = 3600
+
+if not DEBUG:
+    CSRF_COOKIE_SECURE = True
+    CSRF_COOKIE_HTTPONLY = True

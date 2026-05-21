@@ -6,6 +6,7 @@ import meilisearch
 from django.db.models import Min, Max
 from django.contrib.staticfiles import finders
 from datetime import date
+from django.urls import reverse
 
 client = meilisearch.Client('http://127.0.0.1:7700', 'artem')
 
@@ -121,6 +122,8 @@ class Game(models.Model):
                 result.append(platform)
         return result
 
+    def get_absolute_url(self):
+        return reverse('game', kwargs={'slug': self.slug})
 
 class Screenshot(models.Model):
     game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name='screenshots')
