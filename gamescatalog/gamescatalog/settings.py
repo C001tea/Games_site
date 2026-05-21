@@ -14,7 +14,6 @@ from pathlib import Path
 import os
 from datetime import timedelta
 
-from django.conf.global_settings import SESSION_COOKIE_HTTPONLY
 from dotenv import load_dotenv
 
 
@@ -34,6 +33,7 @@ ALLOWED_HOSTS = ['0.0.0.0', '192.168.1.4', '127.0.0.1', '*']
 # Application definition
 
 INSTALLED_APPS = [
+    'anymail',
     'axes',
     'accounts',
     'django.contrib.admin',
@@ -150,13 +150,13 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 AUTH_USER_MODEL = 'accounts.User'
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'artemgrecu6@gmail.com'
-EMAIL_HOST_PASSWORD = os.getenv('mail')
+EMAIL_BACKEND = 'anymail.backends.brevo.EmailBackend'
 
+ANYMAIL = {
+    'BREVO_API_KEY' : os.getenv('mail_brevo_api')
+}
+
+DEFAULT_FROM_EMAIL = 'Game Vault <contact@game-vault.dev>'
 
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SECURE = True
