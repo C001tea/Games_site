@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_DB: games_db
       POSTGRES_USER: game_user
-      POSTGRES_PASSWORD: '>&@)}#{=bNnRCgeCr8E=!/7'
+      POSTGRES_PASSWORD: ${database_password}
     ports:
       - "5433:5432"
     volumes:
