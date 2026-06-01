@@ -28,10 +28,6 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% if request.COOKIES.cookie_consent == 'all' %}
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9440501435755251"
-     crossorigin="anonymous"></script>
-    {% endif %}
 
     <meta name="description" content="{% block meta_description %}GameVault - find games, compare prices across stores{% endblock %}">
     <link rel="preload" href="{% static 'catalog/css/style.css' %}" as="style">
@@ -58,15 +54,7 @@
         </form>
     </div>
 
-<!--    <div class="nav-right">-->
-<!--        {% if user.is_authenticated %}-->
-<!--            <a>Wishlist</a>-->
-<!--            <a href="{% url 'logout' %}">Log out</a>-->
-<!--        {% else %}-->
-<!--            <a href="{% url 'login' %}" class="auth-link login-btn">Log in</a>-->
-<!--            <a href="{% url 'register' %}" class="auth-link signup-btn">Sing up</a>-->
-<!--        {% endif %}-->
-<!--    </div>-->
+
 </div>
 
 
