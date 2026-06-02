@@ -4,19 +4,11 @@
 <html lang="en">
 <head>
 
-    {% verbatim %}
+    {% if request.COOKIES.cookie_consent == 'all' %}
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9440501435755251"
+     crossorigin="anonymous"></script>
+    {% endif %}
 
-    <script data-cfasync="false" src="https://cmp.gatekeeperconsent.com/min.js"></script>
-    <script data-cfasync="false" src="https://the.gatekeeperconsent.com/cmp.min.js"></script>
-
-    <script async src="//www.ezojs.com/ezoic/sa.min.js"></script>
-    <script>
-        window.ezstandalone = window.ezstandalone || {};
-        ezstandalone.cmd = ezstandalone.cmd || [];
-    </script>
-    <script src="//ezoicanalytics.com/analytics.js"></script>
-
-    {% endverbatim %}
 
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-TSEEMZCMKB"></script>
     <script>
