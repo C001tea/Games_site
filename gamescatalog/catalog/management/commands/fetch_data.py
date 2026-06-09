@@ -98,9 +98,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         games_fetched = 0
         max_games = 500
-        start_page = 211
+        start_page = 221
         url = f'https://api.rawg.io/api/games?key={API_KEY}&page_size=40&page={start_page}&ordering=-added'
-        #url = f'https://api.rawg.io/api/games?key={API_KEY}&dates=2026-01-01,2026-05-01&page_size=40&page={start_page}&ordering=-released'
+        #url = f'https://api.rawg.io/api/games?key={API_KEY}&dates=2026-01-01,2026-05-01&page_size=40&ordering=-released'
         while url and games_fetched < max_games:
             response = requests.get(url)
             if response.status_code == 200:

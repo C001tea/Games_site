@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Game, Store, Rating, Requirement, Screenshot, GamePrice, Platform, Tag
+from .models import Game, Store, Rating, Requirement, Screenshot, GamePrice, Platform, Tag, PriceHistory, WishList
 
 
 @admin.register(Game)
@@ -35,3 +35,12 @@ class AdminRequirement(admin.ModelAdmin):
 class AdminTag(admin.ModelAdmin):
     list_display = ["id", "name", "slug"]
     search_fields = ["name"]
+
+
+@admin.register(PriceHistory)
+class AdminPriceHistory(admin.ModelAdmin):
+    list_display = ["id", "game", "store", "date", "price"]
+
+@admin.register(WishList)
+class AdminWishlist(admin.ModelAdmin):
+    list_display = ["id", "user", "game", "is_active", "send_notification"]

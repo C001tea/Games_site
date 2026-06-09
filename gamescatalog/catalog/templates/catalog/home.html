@@ -4,16 +4,18 @@
 {% block title %}GameVault{% endblock %}
 
 {% block meta_description %}GameVault - discover new releases, popular and cheapest games. Compare prices across stores.{% endblock %}
-
+{% block canonical %}
+<link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}/games/">
+{% endblock %}
 {% block content %}
 
 <div class="offers">
     {% for name, list_item in offers_list.items %}
     {% for offer, list in list_item.items %}
         {% if forloop.parentloop.first and forloop.first %}
-            <div style="display: flex; align-items: center; justify-content: space-between;">
-                <h1 class="h-offers"><a href="games/?{% param_replace sort=name %}" class="offer-name">{{ offer }}</a></h1>
-                <a href="/games/" class="all-games-name"><h3 style="margin: 0; margin-left: 5px;">View all →</h3></a>
+            <div style="display: flex; align-items: center; justify-content: space-between;" class="offers-name">
+                <div><a href="games/?{% param_replace sort=name %}" class="offer-name">{{ offer }}</a></div>
+                <a href="/games/" class="all-games-name" style="margin: 0; font-weight: 600; white-space: nowrap; font-size: 16px;">View all →</a>
             </div>
         {% else %}
             <h1><a href="games/?{% param_replace sort=name %}" class="offer-name">{{ offer }}</a></h1>

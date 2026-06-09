@@ -7,6 +7,7 @@ from django.db.models import Min, Max
 from django.contrib.staticfiles import finders
 from datetime import date
 from django.urls import reverse
+from accounts.models import User
 
 client = meilisearch.Client('http://127.0.0.1:7700', 'artem')
 
@@ -162,6 +163,41 @@ class GamePrice(models.Model):
     class Meta:
         unique_together = ('game', 'store')
 
+
+class PriceHistory(models.Model):
+    game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name='price_history')
+    store = models.ForeignKey(Store, on_delete=models.CASCADE, related_name='price_history')
+    date = models.DateField(auto_now_add=True)
+    price = models.DecimalField(max_digits=8, decimal_places=2)
+
+    class Meta:
+        ordering = ['-date']
+
+class WishList(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='wishlist_user')
+    game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name='wishlist_game')
+    is_active = models.BooleanField(default=True)
+    send_notification = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('user', 'game')
+
+
+class GameRating(models.Model):
+    SCORE_CHOICES = [
+        ('exceptional', 'Exceptional'),
+        ('recommended', 'Recommended'),
+        ('meh', 'Meh'),
+        ('skip', 'Skip'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name='ratings')
+    score = models.CharField(max_length=20, choices=SCORE_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'game')
 
 @receiver(post_save, sender=Game)
 def sync_to_meilisearch(sender, instance, **kwargs):

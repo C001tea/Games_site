@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{% static 'accounts/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'catalog/css/style.css'%}">
+    <title>{% block title %}Registration{% endblock %}</title>
+</head>
+<body>
+<div class="navbar-container">
+    <div class="nav-left">
+        <button class="burger-btn" id="burgerBtn">☰</button>
+        <a href="{% url 'home' %}" class="logo-link"><h2>GameVault</h2></a>
+    </div>
+
+    <div class="nav-center">
+        <form action="/search/" method="GET" class="search-form">
+            <input type="text" name="q" placeholder="Search" autocomplete="off">
+        </form>
+    </div>
+
+    <div class="nav-right">
+        {% if user.is_authenticated %}
+            <a>Wishlist</a>
+            <a href="{% url 'logout' %}">Log out</a>
+        {% else %}
+            <a href="{% url 'login' %}" class="auth-link login-btn">Log in</a>
+            <a href="{% url 'register' %}" class="auth-link signup-btn">Sing up</a>
+        {% endif %}
+    </div>
+</div>
+
+{% block content %}{% endblock %}
+</body>
+</html>
+
+
+
+
+

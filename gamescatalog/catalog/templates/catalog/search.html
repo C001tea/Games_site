@@ -2,7 +2,9 @@
 {% load static %}
 
 {% block title %} Searched: {{ searched }} {% endblock %}
-
+{% block canonical %}
+<meta name="robots" content="noindex, follow">
+{% endblock %}
 {% block content %}
 
 {% if searched %}

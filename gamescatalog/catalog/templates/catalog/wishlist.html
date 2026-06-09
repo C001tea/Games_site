@@ -1,0 +1,81 @@
+{% extends 'catalog/base.html' %}
+{% load static %}
+{% block title %}My Wishlist{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto; padding: 20px;">
+    <h1>My Wishlist</h1>
+
+    {% if items %}
+    <div class="wishlist-list">
+        {% for item in items %}
+        <div class="wishlist-card" id="wishlist-item-{{ item.game.id }}">
+
+            <a href="{% url 'game' slug=item.game.slug %}" class="wishlist-img-link">
+                {% if item.game.image %}
+                    <img src="https://images.weserv.nl/?url={{ item.game.image }}&output=webp&w=120&h=70&fit=cover&q=80"
+                         alt="{{ item.game.name }}" class="wishlist-thumb">
+                {% else %}
+                    <img src="{% static 'catalog/images/chernii.jpg' %}" class="wishlist-thumb" alt="no image">
+                {% endif %}
+            </a>
+
+            <div class="wishlist-info">
+                <a href="{% url 'game' slug=item.game.slug %}" class="wishlist-title">{{ item.game.name }}</a>
+                <div class="wishlist-price">
+                    {% if item.min_price %}
+                        From <strong>${{ item.min_price.price }}</strong> on {{ item.min_price.store.name }}
+                    {% else %}
+                        No price available
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="wishlist-actions">
+
+                <button class="notify-btn {% if item.send_notification %}active{% endif %}"
+                        onclick="toggleNotify({{ item.game.id }}, this)"
+                        title="{% if item.send_notification %}Disable email notifications{% else %}Enable email notifications{% endif %}">
+                    {% if item.send_notification %}🔔{% else %}🔕{% endif %}
+                </button>
+                <form method="POST" action="{% url 'remove_from_wishlist' game_id=item.game.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="remove-btn" title="Remove from wishlist">✕</button>
+                </form>
+            </div>
+
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+        <p style="color: #aaa;">Your wishlist is empty. <a href="/games/" style="color: white;">Browse games</a></p>
+    {% endif %}
+</div>
+
+<script>
+function toggleNotify(gameId, btn) {
+    const newValue = btn.classList.contains('active') ? 'false': 'true';
+    fetch(`/wishlist/set_notification/${gameId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `value=${newValue}`
+    })
+
+    .then(res => {
+        if (newValue === 'true') {
+            btn.textContent = '🔔';
+            btn.title = 'Disable email notifications';
+            btn.classList.add('active');
+        } else {
+            btn.textContent = '🔕';
+            btn.title = 'Enable email notifications';
+            btn.classList.remove('active');
+        }
+    })
+}
+</script>
+{% endblock %}

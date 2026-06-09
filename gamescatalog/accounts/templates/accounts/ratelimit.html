@@ -1,0 +1,10 @@
+{% extends 'accounts/base_registration.html' %}
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card" style="text-align: center;">
+        <h1 class="auth-title">Too many requests</h1>
+        <p class="auth-subtitle" style="margin-top: 8px;">You've made too many attempts. Please try again later.</p>
+        <a href="{% url 'login' %}" class="auth-switch" style="display: block; margin-top: 24px;">← Back to Log in</a>
+    </div>
+</div>
+{% endblock %}
