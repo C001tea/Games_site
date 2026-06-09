@@ -11,5 +11,7 @@ urlpatterns = [
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
     path('admin/', admin.site.urls),
     path('', include('catalog.urls')),
+    path('accounts/', include('accounts.urls')),
+    path('accounts/social/', include('allauth.urls')),
 ]
 

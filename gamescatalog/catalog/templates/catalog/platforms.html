@@ -13,3 +13,25 @@
     {% endfor %}
 </div>
 {% endblock %}
+
+
+
+
+<div class="navbar-container">
+    <div class="nav-left">
+        <button class="burger-btn" id="burgerBtn">☰</button>
+        <a href="{% url 'home' %}" class="logo-link"><h2>GameVault</h2></a>
+    </div>
+
+    <div class="nav-center">
+        <form action="/search/" method="GET" class="search-form">
+            <span class="search-icon">🔍</span>
+            <input type="text" name="q" placeholder="Search 899,318 games..." autocomplete="off">
+        </form>
+    </div>
+
+    <div class="nav-right">
+        <a href="{% url 'login' %}" class="auth-link login-btn">Log in</a>
+        <a href="{% url 'register' %}" class="auth-link signup-btn">Sign up</a>
+    </div>
+</div>

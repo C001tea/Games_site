@@ -13,9 +13,9 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 from pathlib import Path
 import os
 from datetime import timedelta
-
 from dotenv import load_dotenv
-
+import allauth
+from celery.schedules import crontab
 
 load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -33,6 +33,7 @@ ALLOWED_HOSTS = ['0.0.0.0', '192.168.1.4', '127.0.0.1', '*']
 # Application definition
 
 INSTALLED_APPS = [
+    'django_celery_beat',
     'anymail',
     'axes',
     'accounts',
@@ -45,6 +46,11 @@ INSTALLED_APPS = [
     'django.contrib.postgres',
     'catalog.apps.CatalogConfig',
     'django.contrib.sitemaps',
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
 ]
 
 SITE_ID = 1
@@ -58,6 +64,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'axes.middleware.AxesMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'gamescatalog.urls'
@@ -116,10 +123,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTHENTICATION_BACKENDS = [
     'axes.backends.AxesStandaloneBackend',
-    'django.contrib.auth.backends.ModelBackend'
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
-AXES_FAILURE_LIMIT = 7
+AXES_FAILURE_LIMIT = 15
 AXES_COOLOFF_TIME = timedelta(minutes=10)
 AXES_LOCKOUT_CALLABLE = None
 
@@ -141,9 +149,22 @@ PASSWORD_HASHERS = [
 ]
 
 
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_TIMEZONE = 'UTC'
+
+CELERY_BEAT_SCHEDULE = {
+    'update-price-every-24-hours': {
+        'task': 'catalog.tasks.update_prices',
+        'schedule': crontab(minute=0, hour=0),
+    },
+}
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
+
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
@@ -158,11 +179,33 @@ ANYMAIL = {
 
 DEFAULT_FROM_EMAIL = 'Game Vault <contact@game-vault.dev>'
 
+RATELIMIT_VIEW = 'accounts.views.ratelimit_blocked'
+
 SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SECURE = True
-SESSION_COOKIE_SAMESITE = 'Strict'
-SESSION_COOKIE_AGE = 3600
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+else:
+    SESSION_COOKIE_SECURE = False
+
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_AGE = 60*60*24*30
 
 if not DEBUG:
     CSRF_COOKIE_SECURE = True
     CSRF_COOKIE_HTTPONLY = True
+
+
+ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
+ACCOUNT_UNIQUE_EMAIL = True
+
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+
+SOCIALACCOUNT_LOGIN_ON_GET = True
+SOCIALACCOUNT_AUTO_SIGNUP = True
+SOCIALACCOUNT_ADAPTER = 'accounts.adapters.CustomSocialAccountAdapter'
+ACCOUNT_LINK_ON_STATUS_CHANGE = True
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
+SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
+SOCIALACCOUNT_DISCONNECT_ROLLBACK_ON_USER_PASSWORD = False

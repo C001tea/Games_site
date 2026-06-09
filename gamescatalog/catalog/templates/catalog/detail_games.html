@@ -3,7 +3,7 @@
 {% block title %}{{ game.name }}{% endblock %}
 
 {% block canonical %}
-<link rel="canonical" href="https://game-vault.dev{{ game.get_absolute_url }}">
+<link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ game.get_absolute_url }}">
 {% endblock %}
 
 {% block meta_description %}{{ game.name }} - Buy on {% for game_price in game_prices %}
@@ -103,18 +103,18 @@ body {
     </div>
 
 
-    {% if game.detail_ratings.all %}
+    {% if percents %}
 
     <div class="rating-container">
-        <p><span>{{ game.rating_count }} Ratings</span></p>
-    {% for rating in game.detail_ratings.all %}
+        <p><span>{{ total_ratings }} Ratings</span></p>
+    {% for title, percent in percents.items %}
     <div class="rating-row">
         <div class="rating-info">
-            <span class="title">{{ rating.title|title }}</span>
-            <span class="percent">{{ rating.percent }}%</span>
+            <span class="title">{{ title|title }}</span>
+            <span class="percent">{{ percent }}%</span>
         </div>
         <div class="rating-bar">
-            <div class="rating-bar-fill" style="width: {{ rating.percent|safe }}%;"></div></div>
+            <div class="rating-bar-fill" style="width: {{ percent|safe }}%;"></div></div>
         </div>
     {% endfor %}
     </div>
@@ -126,7 +126,22 @@ body {
     <div class="detail-info">
         {% if game_prices %}
         <div class="where-to-buy">
-            <h1 style="margin-top: 0;">Where to buy</h1>
+            <div class="where-wishlist">
+                <h1 style="margin-top: 0;">Where to buy</h1>
+                {% if in_wishlist %}
+                <button disabled>In wishlist</button>
+                {% else %}
+                <button id="wishlist-btn">Add to wishlist</button>
+                {% endif %}
+
+                <div id="popup" class="hidden">
+                    <div class="notify-email">
+                        <p>Notify me of price changes by email?</p>
+                        <button onclick="setNotification(true)">Yes</button>
+                        <button onclick="setNotification(false)">No</button>
+                    </div>
+                </div>
+            </div>
             <div class="stores">
 
                 {% for game_price in game_prices %}
@@ -160,6 +175,16 @@ body {
             </div>
         </div>
         {% endif %}
+
+        {% if price_history %}
+        <div class="price-history">
+            <h1 style="margin-top: 0;">Price History</h1>
+            <hr>
+            <canvas id="priceChart" height="100"></canvas>
+        </div>
+        {% endif %}
+
+        {{ price_history_json|json_script:"price-data" }}
 
         <div class="description" style="margin-top: 10px;">
         <h1 style="margin-top: 0;">Description</h1>
@@ -274,7 +299,7 @@ body {
 <div class="modal-overlay" id="modal" onclick="closeModal()">
     <img class="modal-img" id="modal-img" alt="modal-img">
 </div>
-
+{% block extra__js %}
 <script>
 
     const slider = document.getElementById('game-slider');
@@ -319,6 +344,101 @@ body {
     document.addEventListener('keydown', (e) => {
         if (e.key == 'Escape') closeModal();
     });
+
+    const btn = document.getElementById('wishlist-btn')
+    if (btn) {
+        btn.addEventListener('click', function() {
+            fetch("{% url 'add_to_wishlist' game_id=game.id %}", {
+                method: 'POST',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            })
+            .then(res => {
+                if (res.status == 401) {
+                    window.location.href = '/accounts/login/';
+                }
+                return res.json();
+            })
+
+            .then(data => {
+                if (data.created) {
+                    document.getElementById('popup').classList.remove('hidden')
+                    const btn = document.getElementById('wishlist-btn')
+                    btn.textContent = 'In wishlist'
+                    btn.disabled = true
+                    btn.removeAttribute('id')
+                }
+            })
+        })
+    }
+    function setNotification(value){
+    fetch("{% url 'set_notification' game_id=game.id %}", {
+            method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `value=${value}`
+    })
+    .then( ()=> {
+        document.getElementById('popup').classList.add('hidden')
+    })
+    }
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+    const priceDataEl = document.getElementById('price-data');
+    if (priceDataEl) {
+        const priceData = JSON.parse(priceDataEl.textContent);
+        if (priceData.length > 0) {
+            const labels = priceData.map(e => e.date);
+            const prices = priceData.map(e => e.price);
+            new Chart(document.getElementById('priceChart'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Price ($)',
+                        data: prices,
+                        borderColor: '#4285f4',
+                        backgroundColor: 'rgba(66, 133, 244, 0.1)',
+                        borderWidth: 2,
+                        pointRadius: 3,
+                        tension: 0.3,
+                        fill: true,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => {
+                                    const store = priceData[ctx.dataIndex].store;
+                                    return `$${ctx.parsed.y.toFixed(2)} - ${store}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#aaa', maxTicksLimit: 8 },
+                            grid: { color: 'rgba(255,255,255,0.05)' }
+                        },
+                        y: {
+                            ticks: {
+                                color: '#aaa',
+                                callback: val => `$${parseFloat(val.toFixed(2))}`
+                            },
+                            grid: { color: 'rgba(255,255,255,0.05)' }
+                        }
+                    }
+                }
+            });
+        }
+    }
+});
+{% endblock %}
 </script>
 {% endblock %}
 

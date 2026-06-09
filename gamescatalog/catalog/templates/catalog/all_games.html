@@ -4,7 +4,9 @@
 {% block title %}All Games{% endblock %}
 
 {% block meta_description %}Browse all games - filter by genre and platform. Compare prices.{% endblock %}
-
+{% block canonical %}
+<link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}/games/">
+{% endblock %}
 {% block content %}
 
 

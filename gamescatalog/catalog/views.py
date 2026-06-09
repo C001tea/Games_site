@@ -1,5 +1,8 @@
-from django.shortcuts import render
-from .models import Game, Store, Platform, GamePrice, Genre
+from django.db.models.functions import TruncDate
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Game, Store, Platform, GamePrice, Genre, WishList
 import meilisearch
 from django.db.models import Case, When, Count
 from django.core.paginator import Paginator
@@ -51,7 +54,7 @@ def search(request):
 
 def game_detail(request, slug):
     game = Game.objects.get(slug=slug)
-
+    in_wishlist = request.user.is_authenticated and WishList.objects.filter(user=request.user, game=game).exists()
     current_tags = game.tags.all()
 
     similar_games_pool = list(Game.objects.filter(
@@ -66,10 +69,49 @@ def game_detail(request, slug):
     else:
         similar_games = similar_games_pool
     game_prices = game.prices.all().order_by('price')
-    return render(request, 'catalog/detail_games.html', context={'game': game,
-                                                                 'game_prices': game_prices,
-                                                                 'similar_games': similar_games,
-                                                                 'tags_list': current_tags})
+
+    price_history_qs = game.price_history.annotate(day=TruncDate('date')).values('day').annotate(min_price=Min('price')).order_by('date')[:60]
+
+    price_history_data = []
+    for entry in price_history_qs:
+        record = (
+            game.price_history
+            .filter(
+                date=entry['day'],
+                price=entry['min_price']
+            )
+            .select_related('store')
+            .first()
+        )
+
+        if record:
+            price_history_data.append({
+                'date': entry['day'].strftime('%Y-%m-%d'),
+                'price': round(float(entry['min_price']), 2),
+                'store': record.store.name,
+            })
+
+
+    ratings = { rating.title: rating.count for rating in game.detail_ratings.all()}
+    user_ratings = game.ratings.values('score').annotate(count=Count('score'))
+
+    for rating in user_ratings:
+        ratings[rating['score']] = ratings.get(rating['score'], 0) + rating['count']
+
+    total = sum(ratings.values())
+    percents = {k: round(v*100/total, 1) for k, v in ratings.items()}
+
+    return render(request, 'catalog/detail_games.html', context={
+        'game': game,
+        'game_prices': game_prices,
+        'similar_games': similar_games,
+        'tags_list': current_tags,
+        'in_wishlist': in_wishlist,
+        'price_history_json': price_history_data,
+        'price_history': price_history_qs,
+        'percents': percents,
+        'total_rating': total,
+        })
 
 
 def platforms(request):
@@ -155,3 +197,73 @@ def get_page_range(current_page, num_pages):
         pages.append(num_pages)
 
     return pages
+
+
+
+@login_required
+def wishlist_page(request):
+
+    items = WishList.objects.filter(
+        user=request.user,
+        is_active=True
+    ).select_related('game').prefetch_related('game__prices__store')
+
+    for item in items:
+        item.min_price = item.game.prices.filter(
+            price__isnull = False
+        ).order_by('price').first()
+
+    return render(request, 'catalog/wishlist.html', {'items': items})
+
+
+def remove_from_wishlist(request, game_id):
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'success': False,
+            'error': 'auth_required',
+            'message': 'You must be logged in to add games to your wishlist.'
+        }, status=401)
+
+    if request.method == 'POST':
+        WishList.objects.filter(user=request.user, game_id=game_id).delete()
+
+    return redirect('wishlist')
+
+def add_to_wishlist(request, game_id):
+
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'success': False,
+            'error': 'auth_required',
+            'message': 'You must be logged in to add games to your wishlist.'
+        }, status=401)
+
+    if request.method == 'POST':
+
+        game = get_object_or_404(Game, id=game_id)
+        obj, created = WishList.objects.get_or_create(user=request.user, game=game)
+        return JsonResponse({'created': created})
+
+    return JsonResponse({'error': 'Method is not allowed'}, status=405)
+
+@login_required
+def game_rate(request, game_id):
+    if request.status == "POST":
+        score = request.POST.get('score')
+
+        if score not in ['exceptional', 'recommended', 'meh', 'skip']:
+            return JsonResponse({'error': 'Invalid score'}, status=400)
+
+
+
+    return JsonResponse({'error': 'Method is not allowed'}, status=405)
+
+@login_required
+def set_notification(request, game_id):
+    if request.method == 'POST':
+        value = request.POST.get('value') == 'true'
+        item = WishList.objects.get(user=request.user, game_id=game_id)
+        item.send_notification = value
+        item.save()
+        return JsonResponse({"send_notification": item.send_notification})
+    return JsonResponse({'error': 'Method not allowed'}, status=405)
