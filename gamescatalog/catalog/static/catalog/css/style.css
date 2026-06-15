@@ -405,12 +405,12 @@ h1, h2, h3, p {
     display: flex;
     justify-content: space-between;
     flex-direction: column;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-
-.rating-info{
-    display: flex;
-    justify-content: space-between;
+.rating-row:hover{
+    transform: translateY(-2px);
 }
 
 .rating-bar{
@@ -421,12 +421,24 @@ h1, h2, h3, p {
     overflow: hidden;
     margin-top: 5px;
     margin-bottom: 10px;
+
 }
 
 .rating-bar-fill{
     height: 100%;
     background: #d4d4d8;
+    transition: background-color 0.3s ease;
 }
+
+.rating-row:hover .rating-bar-fill{
+    background-color: #f39c12;
+}
+
+.rating-info{
+    display: flex;
+    justify-content: space-between;
+}
+
 
 .detail-info{
 
@@ -1221,7 +1233,7 @@ button.expand-btn{
 .mobile-search{
     display: none;
     padding: 8px 12px;
-    background: #0e0e0e;
+    background: transparent;
 }
 
 @media (max-width: 768px){
