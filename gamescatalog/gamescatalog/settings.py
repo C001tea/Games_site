@@ -23,14 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('SECRET_KEY')
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 DEBUG = os.getenv('DEBUG') == 'True'
 
 ALLOWED_HOSTS = ['0.0.0.0', '192.168.1.4', '127.0.0.1', '*']
-
-
-# Application definition
 
 INSTALLED_APPS = [
     'django_celery_beat',
@@ -94,11 +89,12 @@ WSGI_APPLICATION = 'gamescatalog.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'games_db',
-        'USER': 'game_user',
-        'PASSWORD': os.getenv('database_password'),
-        'HOST': '127.0.0.1',
-        'PORT': '5433',
+        'NAME': os.getenv('DB_NAME', 'games_db'),
+        'USER': os.getenv('DB_USER', 'gvadmin'),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD'),
+        'HOST': os.getenv('DB_HOST', 'gamevault-db.postgres.database.azure.com'),
+        'PORT': os.getenv('DB_PORT', '5432'),
+        'OPTIONS': {'sslmode': 'require'},
     }
 }
 
