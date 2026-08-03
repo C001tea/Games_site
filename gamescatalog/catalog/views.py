@@ -7,9 +7,9 @@ import meilisearch
 from django.db.models import Case, When, Count
 from django.core.paginator import Paginator
 from django.db.models import F, Min, Max
-import random
+import random, os
 
-client = meilisearch.Client('http://127.0.0.1:7700', 'artem')
+client = meilisearch.Client("http://20.91.196.239:7700", os.getenv('MEILI_MASTER_KEY'))
 
 def home(request):
     games_list = Game.objects.all()
