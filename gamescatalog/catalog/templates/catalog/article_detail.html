@@ -1,0 +1,45 @@
+{% extends 'catalog/base.html' %}
+{% load static %}
+{% block title %}{{ article.title }}{% endblock %}
+
+{% block canonical %}
+<link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{% url 'article_detail' slug=article.slug %}">
+{% endblock %}
+
+{% block meta_description %}{{ article.excerpt }}{% endblock %}
+
+{% block content %}
+
+<nav class="breadcrumbs-nav">
+    <a href="javascript:history.back()" class="back-to-results" style="margin-left: 10px;">&larr; Back</a>
+    <ul class="breadcrumbs-list">
+        <li class="breadcrumbs-item"><a href="/">Home</a></li>
+        <li class="breadcrumbs-item"><a href="{% url 'articles_list' %}">Articles</a></li>
+        <li class="breadcrumbs-item"><span>{{ article.title }}</span></li>
+    </ul>
+</nav>
+
+<h1 style="margin-top: 10px;">{{ article.title }}</h1>
+<p style="color: rgb(140,140,140);">Published {{ article.published_at|date:"F d, Y" }}</p>
+
+{% if article.cover_image %}
+<img src="https://images.weserv.nl/?url={{ article.cover_image }}&output=webp&w=1000&q=80" loading="lazy" alt="{{ article.title }}" style="width: 100%; border-radius: 8px; margin: 20px 0;">
+{% endif %}
+
+<div class="description">
+    {{ article.content|linebreaks }}
+</div>
+
+{% if article.related_game %}
+<div class="recommended" style="margin-top: 30px;">
+    <h1>About this game</h1>
+    <a href="{% url 'game' slug=article.related_game.slug %}" class="related-game-card">
+        {% if article.related_game.image %}
+            <img src="https://images.weserv.nl/?url={{ article.related_game.image }}&output=webp&w=500&q=80" loading="lazy" alt="{{ article.related_game.name }}">
+        {% endif %}
+        <h3>{{ article.related_game.name }}</h3>
+    </a>
+</div>
+{% endif %}
+
+{% endblock %}

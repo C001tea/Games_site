@@ -1,0 +1,46 @@
+{% extends 'catalog/base.html' %}
+{% load static %}
+{% block title %}Articles & Reviews{% endblock %}
+
+{% block meta_description %}Game reviews, guides, and curated picks from the GameVault team.{% endblock %}
+
+{% block content %}
+
+<nav class="breadcrumbs-nav">
+    <ul class="breadcrumbs-list">
+        <li class="breadcrumbs-item"><a href="/">Home</a></li>
+        <li class="breadcrumbs-item"><span>Articles</span></li>
+    </ul>
+</nav>
+
+<h1 style="margin-top: 10px;">Articles & Reviews</h1>
+
+<div class="articles-grid">
+    {% for article in articles %}
+    <a href="{% url 'article_detail' slug=article.slug %}" class="article-card">
+        <div class="article-card-image">
+            {% with cover=article.cover_image|default:article.related_game.image %}
+                {% if cover %}
+                    <img src="https://images.weserv.nl/?url={{ cover }}&output=webp&w=500&q=80" loading="lazy" alt="{{ article.title }}">
+                {% else %}
+                    <img src="{% static 'catalog/images/chernii.jpg' %}" loading="lazy" alt="unknown-image">
+                {% endif %}
+            {% endwith %}
+        </div>
+        <div class="article-card-content">
+            <h3 class="article-card-title">{{ article.title }}</h3>
+            <p class="article-card-excerpt">{{ article.excerpt }}</p>
+            <div class="article-card-meta">
+                <span>{{ article.published_at|date:"M d, Y" }}</span>
+                {% if article.related_game %}
+                    <span class="c-badge">{{ article.related_game.name }}</span>
+                {% endif %}
+            </div>
+        </div>
+    </a>
+    {% empty %}
+    <p>No articles yet.</p>
+    {% endfor %}
+</div>
+
+{% endblock %}

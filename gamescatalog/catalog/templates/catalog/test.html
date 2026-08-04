@@ -1,0 +1,46 @@
+{% extends 'catalog/base.html' %}
+{% block content %}
+{% load static %}
+{% for game in games_list %}
+<a href="{% url 'game' slug=game.slug %}" class="modern-game-card">
+
+    <div class="mgc-image-wrapper">
+        {% if game.image %}
+            <img src="{{ game.image }}" alt="{{ game.name }}" loading="lazy" class="mgc-image">
+        {% else %}
+            <img src="{% static 'catalog/images/chernii.jpg' %}" alt="No image" class="mgc-image">
+        {% endif %}
+
+        <div class="mgc-rating">
+            ★ {{ game.rating|floatformat:1 }}
+        </div>
+    </div>
+
+    <div class="mgc-content">
+        <h3 class="mgc-title">{{ game.name }}</h3>
+
+        <div class="mgc-meta">
+            <span class="mgc-developer">{{ game.developers|default:"Unknown Developer" }}</span>
+            <span class="mgc-year">{{ game.released|date:"Y" }}</span>
+        </div>
+
+        <div class="mgc-genres">
+            {% for genre in game.genres.all|slice:":3" %}
+                <span class="mgc-badge">{{ genre.name }}</span>
+            {% endfor %}
+        </div>
+
+        <div class="mgc-footer">
+            <div class="mgc-platforms">
+                {% for platform in game.platforms.all|slice:":4" %}
+                    <span class="mgc-platform-text">{{ platform.name }}</span>
+                {% endfor %}
+            </div>
+            <div class="mgc-reviews">
+                👥 {{ game.rating_count }}
+            </div>
+        </div>
+    </div>
+</a>
+{% endfor %}
+{% endblock %}
