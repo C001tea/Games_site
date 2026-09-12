@@ -17,5 +17,7 @@ urlpatterns = [
     path('wishlist/', views.wishlist_page, name='wishlist'),
     path('wishlist/add/<int:game_id>/', views.add_to_wishlist, name='add_to_wishlist'),
     path('wishlist/remove/<int:game_id>/', views.remove_from_wishlist, name='remove_from_wishlist'),
-    path('wishlist/set_notification/<int:game_id>/', views.set_notification, name='set_notification')
+    path('wishlist/set_notification/<int:game_id>/', views.set_notification, name='set_notification'),
+    path('articles/', views.articles_list, name='articles_list'),
+    path('article/<slug:slug>', views.article_detail, name='article_detail'),
 ]

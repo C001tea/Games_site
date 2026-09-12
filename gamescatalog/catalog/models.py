@@ -2,15 +2,14 @@ from django.db import models
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.utils.text import slugify
-import meilisearch
+import meilisearch, os
 from django.db.models import Min, Max
 from django.contrib.staticfiles import finders
 from datetime import date
 from django.urls import reverse
 from accounts.models import User
 
-client = meilisearch.Client('http://127.0.0.1:7700', 'artem')
-
+client = meilisearch.Client("http://20.91.196.239:7700", os.getenv('MEILI_MASTER_KEY'))
 
 class Store(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -198,6 +197,28 @@ class GameRating(models.Model):
 
     class Meta:
         unique_together = ('user', 'game')
+
+class Article(models.Model):
+    title = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=200, unique=True, blank=True)
+    excerpt = models.CharField(max_length=300, help_text="Short description for list of articles")
+    content =  models.TextField()
+    cover_image = models.URLField(blank=True, null=True)
+    related_game = models.ForeignKey('Game', on_delete=models.SET_NULL, null=True, blank=True, related_name='articles')
+    published_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_published = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['-published_at']
+
+    def __str__(self):
+        return self.title
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
 
 @receiver(post_save, sender=Game)
 def sync_to_meilisearch(sender, instance, **kwargs):

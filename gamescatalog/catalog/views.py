@@ -2,14 +2,14 @@ from django.db.models.functions import TruncDate
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Game, Store, Platform, GamePrice, Genre, WishList
+from .models import Game, Store, Platform, GamePrice, Genre, WishList, Article
 import meilisearch
 from django.db.models import Case, When, Count
 from django.core.paginator import Paginator
 from django.db.models import F, Min, Max
-import random
+import random, os
 
-client = meilisearch.Client('http://127.0.0.1:7700', 'artem')
+client = meilisearch.Client("http://20.91.196.239:7700", os.getenv('MEILI_MASTER_KEY'))
 
 def home(request):
     games_list = Game.objects.all()
@@ -267,3 +267,12 @@ def set_notification(request, game_id):
         item.save()
         return JsonResponse({"send_notification": item.send_notification})
     return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+
+def articles_list(request):
+    articles = Article.objects.filter(is_published=True)
+    return render(request, 'catalog/articles_list.html', context={'articles': articles})
+
+def article_detail(request, slug):
+    article = get_object_or_404(Article, slug=slug, is_published=True)
+    return render(request, 'catalog/article_detail.html', {'article': article})
