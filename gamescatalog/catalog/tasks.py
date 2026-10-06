@@ -7,6 +7,7 @@ import traceback
 import time
 from django.core.mail import send_mail
 from collections import defaultdict
+from management.commands.fetch_data import heavy_work
 
 shark_stores = {
     "1": {"storeID": "1", "storeName": "Steam"},
@@ -218,3 +219,7 @@ def update_prices():
             recipient_list=['artemgrecu6@gmail.com'],
             fail_silently=True,
         )
+
+@shared_task
+def update_games():
+    heavy_work()
